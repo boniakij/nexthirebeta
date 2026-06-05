@@ -19,11 +19,38 @@ class Student extends Model
 
     protected $casts = ['skills' => 'array', 'last_active_at' => 'datetime'];
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function interviews(): HasMany { return $this->hasMany(Interview::class); }
-    public function evaluations(): HasMany { return $this->hasMany(Evaluation::class); }
-    public function badges(): HasMany { return $this->hasMany(UserBadge::class); }
-    public function pointsLedger(): HasMany { return $this->hasMany(PointsLedger::class); }
-    public function reviews(): HasMany { return $this->hasMany(Review::class); }
-    public function campaignCandidates(): HasMany { return $this->hasMany(CampaignCandidate::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function interviews(): HasMany
+    {
+        return $this->hasMany(Interview::class);
+    }
+
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
+    public function badges(): HasMany
+    {
+        return $this->hasMany(UserBadge::class);
+    }
+
+    public function pointsLedger(): HasMany
+    {
+        return $this->hasMany(PointsLedger::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function campaignCandidates(): HasMany
+    {
+        return $this->hasMany(CampaignCandidate::class);
+    }
 }
