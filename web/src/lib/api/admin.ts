@@ -6,71 +6,205 @@ export const adminApi = {
     return apiClient.get('/admin/dashboard');
   },
 
-  // Users
-  getUsers: async (filters?: any) => {
+  getStats: async () => {
+    return apiClient.get('/admin/stats');
+  },
+
+  getHealth: async () => {
+    return apiClient.get('/admin/health');
+  },
+
+  // User Management
+  getUsers: async (filters?: { role?: string; status?: string; search?: string; page?: number }) => {
     return apiClient.get('/admin/users', { params: filters });
   },
 
-  updateUserStatus: async (userId: number, status: string) => {
-    return apiClient.put(`/admin/users/${userId}/status`, { status });
+  getUser: async (id: number) => {
+    return apiClient.get(`/admin/users/${id}`);
   },
 
-  banUser: async (userId: number) => {
-    return apiClient.post(`/admin/users/${userId}/ban`);
+  updateUser: async (id: number, data: any) => {
+    return apiClient.put(`/admin/users/${id}`, data);
   },
 
-  unbanUser: async (userId: number) => {
-    return apiClient.post(`/admin/users/${userId}/unban`);
+  deleteUser: async (id: number) => {
+    return apiClient.delete(`/admin/users/${id}`);
   },
 
-  // Trainers
-  getTrainers: async (filters?: any) => {
+  bulkDeleteUsers: async (userIds: number[]) => {
+    return apiClient.post('/admin/users/bulk-delete', { user_ids: userIds });
+  },
+
+  // Trainer Management
+  getTrainers: async (filters?: { status?: string; rating?: number }) => {
     return apiClient.get('/admin/trainers', { params: filters });
   },
 
-  getPendingTrainers: async (page?: number, per_page?: number) => {
-    return apiClient.get('/admin/trainers/pending', { params: { page, per_page } });
+  getTrainer: async (id: number) => {
+    return apiClient.get(`/admin/trainers/${id}`);
   },
 
-  approveTrainer: async (trainerId: number) => {
-    return apiClient.post(`/admin/trainers/${trainerId}/approve`);
+  getPendingTrainers: async () => {
+    return apiClient.get('/admin/trainers/pending');
   },
 
-  rejectTrainer: async (trainerId: number, reason?: string) => {
-    return apiClient.post(`/admin/trainers/${trainerId}/reject`, { reason });
+  approveTrainer: async (id: number, data?: any) => {
+    return apiClient.post(`/admin/trainers/${id}/approve`, data);
   },
 
-  verifyTrainerKYC: async (trainerId: number) => {
-    return apiClient.post(`/admin/trainers/${trainerId}/verify-kyc`);
+  rejectTrainer: async (id: number, reason?: string) => {
+    return apiClient.post(`/admin/trainers/${id}/reject`, { reason });
   },
 
-  // Companies
-  getCompanies: async (filters?: any) => {
+  getTrainerReviews: async (id: number) => {
+    return apiClient.get(`/admin/trainers/${id}/reviews`);
+  },
+
+  getTrainerComplaints: async (id: number) => {
+    return apiClient.get(`/admin/trainers/${id}/complaints`);
+  },
+
+  // Company Management
+  getCompanies: async (filters?: { status?: string; industry?: string }) => {
     return apiClient.get('/admin/companies', { params: filters });
   },
 
-  getPendingCompanies: async (page?: number, per_page?: number) => {
-    return apiClient.get('/admin/companies/pending', { params: { page, per_page } });
+  getCompany: async (id: number) => {
+    return apiClient.get(`/admin/companies/${id}`);
   },
 
-  verifyCompanyKYC: async (companyId: number) => {
-    return apiClient.post(`/admin/companies/${companyId}/verify-kyc`);
+  getPendingCompanies: async () => {
+    return apiClient.get('/admin/companies/pending');
   },
 
-  rejectCompanyKYC: async (companyId: number, reason?: string) => {
-    return apiClient.post(`/admin/companies/${companyId}/reject-kyc`, { reason });
+  verifyCompany: async (id: number, data?: any) => {
+    return apiClient.post(`/admin/companies/${id}/verify`, data);
   },
 
-  verifyCompany: async (companyId: number) => {
-    return apiClient.post(`/admin/companies/${companyId}/verify`);
+  rejectCompany: async (id: number, reason?: string) => {
+    return apiClient.post(`/admin/companies/${id}/reject`, { reason });
   },
 
-  rejectCompany: async (companyId: number, reason?: string) => {
-    return apiClient.post(`/admin/companies/${companyId}/reject`, { reason });
+  getCompanyCampaigns: async (id: number) => {
+    return apiClient.get(`/admin/companies/${id}/campaigns`);
   },
 
-  // Reports
-  getRevenueReport: async (filters?: any) => {
-    return apiClient.get('/admin/reports/revenue', { params: filters });
+  getCompanyCandidates: async (id: number) => {
+    return apiClient.get(`/admin/companies/${id}/candidates`);
+  },
+
+  // Booking Management
+  getBookings: async (filters?: { status?: string; date?: string }) => {
+    return apiClient.get('/admin/bookings', { params: filters });
+  },
+
+  getBooking: async (id: number) => {
+    return apiClient.get(`/admin/bookings/${id}`);
+  },
+
+  getBookingsByStatus: async (status: string) => {
+    return apiClient.get(`/admin/bookings/status/${status}`);
+  },
+
+  updateBooking: async (id: number, data: any) => {
+    return apiClient.put(`/admin/bookings/${id}`, data);
+  },
+
+  deleteBooking: async (id: number) => {
+    return apiClient.delete(`/admin/bookings/${id}`);
+  },
+
+  // Payment Management
+  getPayments: async (filters?: { status?: string; gateway?: string }) => {
+    return apiClient.get('/admin/payments', { params: filters });
+  },
+
+  getPayment: async (id: number) => {
+    return apiClient.get(`/admin/payments/${id}`);
+  },
+
+  getPaymentsByStatus: async (status: string) => {
+    return apiClient.get(`/admin/payments/status/${status}`);
+  },
+
+  refundPayment: async (id: number, data: any) => {
+    return apiClient.post(`/admin/payments/${id}/refund`, data);
+  },
+
+  // Payout Management
+  getPayouts: async (filters?: { status?: string }) => {
+    return apiClient.get('/admin/payouts', { params: filters });
+  },
+
+  processPayout: async (id: number, data: any) => {
+    return apiClient.post(`/admin/payouts/${id}/process`, data);
+  },
+
+  // Invoice Management
+  getInvoices: async () => {
+    return apiClient.get('/admin/invoices');
+  },
+
+  getInvoice: async (id: number) => {
+    return apiClient.get(`/admin/invoices/${id}`);
+  },
+
+  // Notification Management
+  sendNotification: async (data: any) => {
+    return apiClient.post('/admin/notifications/send', data);
+  },
+
+  broadcastNotification: async (data: any) => {
+    return apiClient.post('/admin/notifications/broadcast', data);
+  },
+
+  sendEmailCampaign: async (data: any) => {
+    return apiClient.post('/admin/notifications/email', data);
+  },
+
+  getNotificationHistory: async (filters?: { type?: string; status?: string }) => {
+    return apiClient.get('/admin/notifications/history', { params: filters });
+  },
+
+  // Reports & Analytics
+  getUserGrowthReport: async (period?: string) => {
+    return apiClient.get('/admin/reports/users', { params: { period } });
+  },
+
+  getRevenueReport: async (period?: string) => {
+    return apiClient.get('/admin/reports/revenue', { params: { period } });
+  },
+
+  getBookingReport: async (period?: string) => {
+    return apiClient.get('/admin/reports/bookings', { params: { period } });
+  },
+
+  getTrainerPerformanceReport: async () => {
+    return apiClient.get('/admin/reports/trainers');
+  },
+
+  exportReport: async (data: any) => {
+    return apiClient.post('/admin/reports/export', data);
+  },
+
+  // Settings Management
+  getSettings: async () => {
+    return apiClient.get('/admin/settings');
+  },
+
+  updateSettings: async (data: any) => {
+    return apiClient.put('/admin/settings', data);
+  },
+
+  updatePaymentSettings: async (data: any) => {
+    return apiClient.put('/admin/settings/payment', data);
+  },
+
+  updateVideoSettings: async (data: any) => {
+    return apiClient.put('/admin/settings/video', data);
+  },
+
+  updateCommunicationSettings: async (data: any) => {
+    return apiClient.put('/admin/settings/communication', data);
   },
 };
