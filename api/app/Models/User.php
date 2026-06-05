@@ -9,11 +9,23 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->uuid) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +42,9 @@ class User extends Authenticatable
         'google_id',
         'profile_photo',
         'email_verified_at',
+        'email_verification_token',
+        'reset_token',
+        'reset_token_expires_at',
     ];
 
     /**
@@ -51,6 +66,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'reset_token_expires_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
         ];

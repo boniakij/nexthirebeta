@@ -6,24 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Notification extends Model
+class RefreshToken extends Model
 {
     use HasFactory;
 
-    const UPDATED_AT = null;
-
-    protected $keyType = 'string';
-    public $incrementing = false;
-
     protected $fillable = [
-        'id', 'user_id', 'type', 'title', 'body', 'data', 'read_at',
+        'user_id',
+        'token',
+        'expires_at',
     ];
 
-    protected $casts = [
-        'data' => 'array',
-        'read_at' => 'datetime',
-        'created_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {

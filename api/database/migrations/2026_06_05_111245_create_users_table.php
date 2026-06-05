@@ -20,6 +20,9 @@ return new class extends Migration
             $table->enum('role', ['student', 'trainer', 'company', 'admin']);
             $table->enum('status', ['active', 'suspended', 'pending'])->default('pending');
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('email_verification_token', 255)->nullable();
+            $table->string('reset_token', 255)->nullable();
+            $table->timestamp('reset_token_expires_at')->nullable();
             $table->string('google_id', 100)->nullable();
             $table->string('profile_photo', 500)->nullable();
             $table->timestamps();
