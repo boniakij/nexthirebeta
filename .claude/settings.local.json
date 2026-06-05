@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer create-project *)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
