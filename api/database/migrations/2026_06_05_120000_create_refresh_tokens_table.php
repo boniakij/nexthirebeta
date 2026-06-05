@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('refresh_tokens', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigUnsignedInteger('user_id');
+            $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->string('token', 255)->unique();
             $table->timestamp('expires_at');
             $table->timestamps();

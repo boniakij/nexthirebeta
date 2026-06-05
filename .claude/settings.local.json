@@ -9,7 +9,13 @@
       "Bash(docker-compose up *)",
       "Bash(docker-compose ps *)",
       "Bash(docker-compose logs *)",
-      "Bash(docker-compose down *)"
+      "Bash(docker-compose down *)",
+      "Bash(composer install *)",
+      "Bash(php artisan *)",
+      "Bash(touch database/database.sqlite)",
+      "Bash(npm install *)",
+      "Bash(curl -s http://localhost:8000/api/v1)",
+      "Bash(curl -s http://localhost:3000)"
     ]
   }
 }
