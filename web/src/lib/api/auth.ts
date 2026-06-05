@@ -8,6 +8,7 @@ export interface LoginPayload {
 
 export interface RegisterPayload {
   email: string;
+  full_name: string;
   password: string;
   password_confirmation: string;
   role: 'student' | 'trainer' | 'company';
