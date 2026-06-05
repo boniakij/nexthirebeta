@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   profile_photo: string | null;
   status: 'active' | 'suspended' | 'pending';
+  email_verified_at: string | null;
   created_at: string;
 }
 
@@ -138,4 +139,10 @@ export interface XPLevel {
   level: number;
   name: string;
   xp_required: number;
+}
+
+export interface AuthTokens {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
 }

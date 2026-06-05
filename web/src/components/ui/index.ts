@@ -13,3 +13,5 @@ export { Skeleton, CardSkeleton } from './Skeleton';
 export { Spinner } from './Spinner';
 export { StarRating } from './StarRating';
 export { Tabs } from './Tabs';
+export { Toast } from './Toast';
+export { Pagination } from './Pagination';

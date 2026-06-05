@@ -1,9 +1,10 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PaymentFailurePage() {
+function PaymentFailureContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason') || 'Payment processing failed';
@@ -68,3 +69,12 @@ export default function PaymentFailurePage() {
     </div>
   );
 }
+
+export default function PaymentFailurePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}> 
+      <PaymentFailureContent />
+    </Suspense>
+  );
+}
+

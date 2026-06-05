@@ -12,8 +12,14 @@ class Company extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'company_name', 'industry', 'website', 'description',
-        'employees_count', 'founded_year', 'location',
+        'user_id', 'company_name', 'company_website', 'industry', 'company_size',
+        'registration_number', 'kyc_document_path', 'kyc_status', 'is_verified',
+        'verified_at', 'hr_contact_name', 'hr_contact_email', 'logo_path', 'country_code',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'verified_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

@@ -1,44 +1,65 @@
 import apiClient from './client';
-import { ApiResponse, User } from '@/types';
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface RegisterPayload {
-  email: string;
-  full_name: string;
-  password: string;
-  password_confirmation: string;
-  role: 'student' | 'trainer' | 'company';
-}
-
-export interface AuthTokens {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-}
+import type { ApiResponse, AuthTokens, User } from '@/types';
 
 export const authApi = {
-  register: (payload: RegisterPayload) =>
-    apiClient.post<ApiResponse<{ user: User; tokens: AuthTokens }>>('/auth/register', payload),
+  login: async (data: { email: string; password: string }) => {
+    return apiClient.post<ApiResponse<{ user: User; access_token: string; refresh_token: string; expires_in: number }>>(
+      '/auth/login',
+      data
+    );
+  },
 
-  login: (payload: LoginPayload) =>
-    apiClient.post<ApiResponse<{ user: User; tokens: AuthTokens }>>('/auth/login', payload),
+  register: async (data: {
+    full_name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+    role: 'student' | 'trainer' | 'company';
+  }) => {
+    return apiClient.post<ApiResponse<{ message: string }>>(
+      '/auth/register',
+      data
+    );
+  },
 
-  logout: () =>
-    apiClient.post('/auth/logout'),
+  verifyEmail: async (data: { token: string }) => {
+    return apiClient.post<ApiResponse<{ message: string }>>(
+      '/auth/verify-email',
+      data
+    );
+  },
 
-  refresh: (refresh_token: string) =>
-    apiClient.post<ApiResponse<AuthTokens>>('/auth/refresh', { refresh_token }),
+  forgotPassword: async (data: { email: string }) => {
+    return apiClient.post<ApiResponse<{ message: string }>>(
+      '/auth/forgot-password',
+      data
+    );
+  },
 
-  forgotPassword: (email: string) =>
-    apiClient.post('/auth/forgot-password', { email }),
+  resetPassword: async (data: { token: string; password: string; password_confirmation: string }) => {
+    return apiClient.post<ApiResponse<{ message: string }>>(
+      '/auth/reset-password',
+      data
+    );
+  },
 
-  resetPassword: (token: string, password: string, password_confirmation: string) =>
-    apiClient.post('/auth/reset-password', { token, password, password_confirmation }),
+  logout: async () => {
+    return apiClient.post<ApiResponse<{ message: string }>>(
+      '/auth/logout'
+    );
+  },
 
-  verifyEmail: (token: string) =>
-    apiClient.post('/auth/verify-email', { token }),
+  refresh: async (refreshToken: string) => {
+    return apiClient.post<ApiResponse<AuthTokens>>(
+      '/auth/refresh',
+      { refresh_token: refreshToken }
+    );
+  },
+
+  googleAuth: async (code: string) => {
+    return apiClient.post<ApiResponse<{ user: User; access_token: string; refresh_token: string }>>(
+      '/auth/google',
+      { code }
+    );
+  },
 };

@@ -1,42 +1,65 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '@/types';
 import { authApi } from '@/lib/api/auth';
+import type { User } from '@/types';
 
 interface AuthState {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User) => void;
   setTokens: (access: string, refresh: string) => void;
-  setUser: (user: User | null) => void;
+  clearAuth: () => void;
+  clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isLoading: false,
+      error: null,
 
-      login: async (email, password) => {
+      login: async (email: string, password: string) => {
+        set({ isLoading: true, error: null });
         try {
           const { data } = await authApi.login({ email, password });
+          const { access_token, refresh_token, user } = data.data;
+
+          localStorage.setItem('access_token', access_token);
+          localStorage.setItem('refresh_token', refresh_token);
+
           set({
-            user: data.data.user,
-            accessToken: data.data.tokens.access_token,
-            refreshToken: data.data.tokens.refresh_token,
+            user,
+            accessToken: access_token,
+            refreshToken: refresh_token,
             isAuthenticated: true,
+            isLoading: false,
           });
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('access_token', data.data.tokens.access_token);
-            localStorage.setItem('refresh_token', data.data.tokens.refresh_token);
-          }
-        } catch (error) {
-          set({ isAuthenticated: false });
+        } catch (error: any) {
+          const message = error?.response?.data?.message || 'Login failed';
+          set({ isLoading: false, error: message });
+          throw error;
+        }
+      },
+
+      register: async (data: any) => {
+        set({ isLoading: true, error: null });
+        try {
+          await authApi.register(data);
+          set({ isLoading: false });
+        } catch (error: any) {
+          const message = error?.response?.data?.message || 'Registration failed';
+          set({ isLoading: false, error: message });
           throw error;
         }
       },
@@ -44,26 +67,55 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           await authApi.logout();
-        } catch {}
-        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
-        if (typeof window !== 'undefined') {
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            error: null,
+          });
         }
       },
 
-      setTokens: (access, refresh) => {
-        set({ accessToken: access, refreshToken: refresh });
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('access_token', access);
-          localStorage.setItem('refresh_token', refresh);
-        }
+      setUser: (user: User) => {
+        set({ user, isAuthenticated: !!user });
       },
 
-      setUser: (user) => {
-        set({ user });
+      setTokens: (access: string, refresh: string) => {
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
+        set({ accessToken: access, refreshToken: refresh, isAuthenticated: true });
+      },
+
+      clearAuth: () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          error: null,
+        });
+      },
+
+      clearError: () => {
+        set({ error: null });
       },
     }),
-    { name: 'nexthire-auth' }
+    {
+      name: 'nexthire-auth',
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
   )
 );

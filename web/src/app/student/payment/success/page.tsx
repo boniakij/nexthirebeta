@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get('payment_id');
@@ -68,10 +68,17 @@ export default function PaymentSuccessPage() {
         </div>
 
         {/* Auto-redirect notice */}
-        <p className="text-xs text-gray-500 mt-6">
-          Redirecting in 5 seconds...
-        </p>
+        <p className="text-xs text-gray-500 mt-6">Redirecting in 5 seconds...</p>
       </div>
     </div>
   );
 }
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}
+

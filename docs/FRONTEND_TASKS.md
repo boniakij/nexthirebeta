@@ -2,7 +2,7 @@
 
 > **Stack:** React 18 · TypeScript · Next.js 14 (App Router) · Tailwind CSS · Zustand · Axios  
 > **Design System:** Inter font · Primary `#1A56DB` · Purple `#7E3AF2` · Success `#0E9F6E`  
-> **Base URL:** `https://api.mnexthire.com/v1`  
+> **Base URL:** 
 > **Version:** 1.0.0
 
 ---
@@ -264,7 +264,7 @@ interface DashboardStats { total_xp, current_level, streak_days, profile_complet
 
 ## PHASE 1 — Auth Pages
 
-### [ ] T-010 · Landing Page (Public)
+### [x] T-010 · Landing Page (Public)
 **Priority:** 🔴 Critical  
 **Route:** `/` (public)  
 **File:** `src/app/page.tsx`

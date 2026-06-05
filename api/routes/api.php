@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\Auth\AuthController;
+use App\Http\Controllers\V1\Student\StudentController;
+use App\Http\Controllers\V1\Company\CompanyController;
 use App\Http\Controllers\V1\Trainer\TrainerController;
 use App\Http\Controllers\V1\Trainer\AvailabilityController;
 use App\Http\Controllers\V1\Booking\BookingController;
@@ -25,6 +27,9 @@ Route::prefix('v1')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
+    // Public Student Routes
+    Route::get('students/{id}/public', [StudentController::class, 'publicProfile']);
+
     // Public Trainer Routes
     Route::get('trainers', [TrainerController::class, 'index']);
     Route::get('trainers/{id}', [TrainerController::class, 'show']);
@@ -42,6 +47,32 @@ Route::prefix('v1')->group(function () {
 
     // Authenticated Routes
     Route::middleware('auth:api')->group(function () {
+
+        // Student Routes
+        Route::prefix('students')->group(function () {
+            Route::get('me', [StudentController::class, 'me']);
+            Route::put('me', [StudentController::class, 'update']);
+            Route::post('me/resume', [StudentController::class, 'uploadResume']);
+            Route::get('me/dashboard', [StudentController::class, 'dashboard']);
+            Route::get('me/sessions', [StudentController::class, 'sessions']);
+            Route::get('me/evaluations', [StudentController::class, 'evaluations']);
+            Route::get('me/badges', [StudentController::class, 'badges']);
+            Route::get('me/xp-history', [StudentController::class, 'xpHistory']);
+        });
+
+        // Company Routes
+        Route::prefix('companies')->group(function () {
+            Route::get('me/dashboard', [CompanyController::class, 'dashboard']);
+            Route::get('me/campaigns', [CompanyController::class, 'campaigns']);
+            Route::post('me/campaigns', [CompanyController::class, 'createCampaign']);
+            Route::put('me/campaigns/{id}', [CompanyController::class, 'updateCampaign']);
+            Route::get('me/candidates', [CompanyController::class, 'candidates']);
+            Route::get('me/campaigns/{id}/candidates', [CompanyController::class, 'campaignCandidates']);
+            Route::post('me/campaigns/{id}/invite', [CompanyController::class, 'inviteCandidate']);
+            Route::put('me/candidates/{id}/status', [CompanyController::class, 'updateCandidateStatus']);
+            Route::get('me/inbox', [CompanyController::class, 'inbox']);
+            Route::post('me/inbox', [CompanyController::class, 'sendMessage']);
+        });
 
         // Trainer Routes
         Route::prefix('trainers')->group(function () {

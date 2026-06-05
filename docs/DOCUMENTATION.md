@@ -7,6 +7,10 @@
 > **Target Markets:** Bangladesh · India · Pakistan  
 > **Prepared by:** Boni Yeamin
 
+## Companion Docs
+
+- [Local-First Development Plan](./LOCAL_DEVELOPMENT_PLAN.md)
+
 ---
 
 ## Table of Contents
@@ -27,7 +31,7 @@
 14. [Video Session System](#14-video-session-system)
 15. [API Reference](#15-api-reference)
 16. [Testing](#16-testing)
-17. [Deployment & DevOps](#17-deployment--devops)
+17. 
 18. [Monitoring & Alerting](#18-monitoring--alerting)
 19. [Security Checklist](#19-security-checklist)
 20. [Workflows & Business Rules](#20-workflows--business-rules)
@@ -106,7 +110,7 @@ NextHire is a cloud-based, gamified Mock Interview & Career Development Platform
 | File Storage | AWS S3 / DO Spaces | — | Resumes, avatars, invoices |
 | Email | Amazon SES / Mailgun | — | Transactional emails |
 | SMS | Twilio / SSL Wireless | — | OTP, session reminders |
-| Containerization | Docker + Compose | Latest | Dev & production parity |
+
 | CI/CD | GitHub Actions | — | Automated test and deploy |
 | Monitoring | Sentry + Laravel Telescope | — | Error tracking, query profiling |
 
@@ -211,12 +215,7 @@ nexthire/
 │   │       └── index.ts
 │   └── tests/
 │
-├── docker/
-│   ├── nginx/
-│   │   └── default.conf
-│   ├── php/
-│   │   └── Dockerfile
-│   └── docker-compose.yml
+├── 
 │
 ├── .github/
 │   └── workflows/
@@ -349,87 +348,7 @@ NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 ```
 
-### Docker Services
 
-```yaml
-# docker/docker-compose.yml
-version: '3.9'
-services:
-  app:
-    build:
-      context: ../api
-      dockerfile: ../docker/php/Dockerfile
-    container_name: nexthire-app
-    volumes:
-      - ../api:/var/www/html
-    depends_on:
-      - db
-      - redis
-
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: nexthire-nginx
-    ports:
-      - "8000:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ../api:/var/www/html
-
-  db:
-    image: mysql:8.0
-    container_name: nexthire-db
-    environment:
-      MYSQL_DATABASE: nexthire
-      MYSQL_USER: nexthire
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: rootsecret
-    volumes:
-      - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-
-  redis:
-    image: redis:7-alpine
-    container_name: nexthire-redis
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-
-  horizon:
-    build:
-      context: ../api
-      dockerfile: ../docker/php/Dockerfile
-    container_name: nexthire-horizon
-    command: php artisan horizon
-    depends_on:
-      - db
-      - redis
-
-  scheduler:
-    build:
-      context: ../api
-      dockerfile: ../docker/php/Dockerfile
-    container_name: nexthire-scheduler
-    command: php artisan schedule:work
-    depends_on:
-      - db
-      - redis
-
-  meilisearch:
-    image: getmeili/meilisearch:v1.6
-    container_name: nexthire-search
-    ports:
-      - "7700:7700"
-    volumes:
-      - search_data:/meili_data
-
-volumes:
-  db_data:
-  redis_data:
-  search_data:
-```
-
----
 
 ## 6. Database Design
 

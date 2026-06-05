@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/authStore';
@@ -27,7 +27,7 @@ interface Trainer {
   full_name: string;
 }
 
-export default function PaymentPage() {
+function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, user } = useAuthStore();
@@ -183,14 +183,17 @@ export default function PaymentPage() {
           <h2 className="text-lg font-bold text-gray-900 mb-4">Select Payment Method</h2>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
-              {error}
-            </div>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">{error}</div>
           )}
 
           <div className="space-y-3 mb-6">
             {[
-              { id: 'sslcommerz', name: 'SSLCommerz', icon: '💳', desc: 'Credit/Debit Card, Mobile Banking (BD)' },
+              {
+                id: 'sslcommerz',
+                name: 'SSLCommerz',
+                icon: '💳',
+                desc: 'Credit/Debit Card, Mobile Banking (BD)',
+              },
               { id: 'bkash', name: 'bKash', icon: '📱', desc: 'Mobile Wallet (Bangladesh)' },
               { id: 'stripe', name: 'Stripe', icon: '💰', desc: 'International Credit/Debit Card' },
             ].map((method) => (
@@ -256,3 +259,12 @@ export default function PaymentPage() {
     </div>
   );
 }
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}> 
+      <PaymentContent />
+    </Suspense>
+  );
+}
+

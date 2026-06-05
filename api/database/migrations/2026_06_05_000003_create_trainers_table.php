@@ -16,10 +16,10 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->unique();
             $table->string('full_name', 200);
             $table->text('bio')->nullable();
-            $table->json('expertise_domains')->default('[]');
+            $table->json('expertise_domains')->nullable();
             $table->smallInteger('years_experience')->nullable();
-            $table->json('certifications')->default('[]');
-            $table->json('company_experience')->default('[]');
+            $table->json('certifications')->nullable();
+            $table->json('company_experience')->nullable();
             $table->decimal('hourly_rate', 10, 2)->nullable();
             $table->decimal('average_rating', 3, 2)->default(0.00);
             $table->unsignedInteger('total_reviews')->default(0);

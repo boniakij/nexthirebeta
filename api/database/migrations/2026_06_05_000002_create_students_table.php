@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('university', 300)->nullable();
             $table->string('department', 200)->nullable();
             $table->smallInteger('graduation_year')->nullable();
-            $table->json('skills')->default('[]');
+            $table->json('skills')->nullable();
             $table->string('preferred_job_role', 200)->nullable();
             $table->string('linkedin_url', 500)->nullable();
             $table->string('github_url', 500)->nullable();
