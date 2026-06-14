@@ -119,13 +119,13 @@ export default function TrainerProfilePage() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
+      setError('Please select a valid image file (PNG, JPG, GIF, etc.)');
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
+    // Validate file size (max 2MB for API, 5MB local)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image size must be less than 2MB');
       return;
     }
 
@@ -133,40 +133,51 @@ export default function TrainerProfilePage() {
       setUploading(true);
       setError('');
 
-      // Read file as base64 for preview
+      // Show preview immediately
       const reader = new FileReader();
-      reader.onload = async (event) => {
+      reader.onload = (event) => {
         const base64Data = event.target?.result as string;
         setImagePreview(base64Data);
-
-        // Upload to API
-        try {
-          const formData = new FormData();
-          formData.append('photo', file);
-
-          const response = await apiClient.post('/trainers/me/profile/photo', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-
-          if (response.data?.success) {
-            if (profile) {
-              setProfile({ ...profile, profile_photo: base64Data });
-            }
-            setEditData({ ...editData, profile_photo: base64Data });
-          }
-        } catch (err: any) {
-          setError('Failed to upload image');
-          console.error('Upload error:', err);
-        } finally {
-          setUploading(false);
-        }
       };
       reader.readAsDataURL(file);
-    } catch (err) {
-      setError('Failed to process image');
+
+      // Upload to API
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch('/api/v1/trainers/me/profile/photo', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data?.success) {
+        // Update profile with returned photo URL
+        const photoUrl = data.photo_url || data.data?.profile_photo;
+        if (profile) {
+          setProfile({ ...profile, profile_photo: photoUrl });
+        }
+        setEditData({ ...editData, profile_photo: photoUrl });
+      } else {
+        setError(data?.message || 'Failed to upload image');
+        // Reset preview on error
+        setImagePreview(profile?.profile_photo || null);
+      }
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setError(err.message || 'Failed to upload image. Please try again.');
+      // Reset preview on error
+      setImagePreview(profile?.profile_photo || null);
+    } finally {
       setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
