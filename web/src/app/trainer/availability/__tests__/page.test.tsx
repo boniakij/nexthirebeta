@@ -62,7 +62,7 @@ describe('AvailabilityPage', () => {
     render(<AvailabilityPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Calendar view coming soon')).toBeInTheDocument();
+      expect(screen.getByText('Availability Calendar')).toBeInTheDocument();
     });
   });
 

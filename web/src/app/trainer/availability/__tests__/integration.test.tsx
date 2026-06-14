@@ -321,7 +321,7 @@ describe('AvailabilityPage Integration Tests', () => {
     render(<AvailabilityPage />);
 
     // Start at calendar
-    expect(screen.getByText('Calendar view coming soon')).toBeInTheDocument();
+    expect(screen.getByText('Availability Calendar')).toBeInTheDocument();
 
     // Click weekly
     await user.click(screen.getByText('🕐 Weekly Schedule'));
@@ -338,7 +338,7 @@ describe('AvailabilityPage Integration Tests', () => {
     // Click back to calendar
     await user.click(screen.getByText('📅 Calendar'));
     await waitFor(() => {
-      expect(screen.getByText('Calendar view coming soon')).toBeInTheDocument();
+      expect(screen.getByText('Availability Calendar')).toBeInTheDocument();
     });
   });
 
