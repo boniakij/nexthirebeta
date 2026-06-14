@@ -98,7 +98,7 @@ export default function WithdrawalsPage() {
       case 'rejected':
         return 'danger';
       default:
-        return 'default';
+        return 'gray';
     }
   };
 

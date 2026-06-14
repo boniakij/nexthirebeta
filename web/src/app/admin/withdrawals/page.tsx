@@ -111,11 +111,11 @@ export default function AdminWithdrawalsPage() {
       case 'processing':
         return 'warning';
       case 'pending':
-        return 'default';
+        return 'gray';
       case 'rejected':
         return 'danger';
       default:
-        return 'default';
+        return 'gray';
     }
   };
 
@@ -253,7 +253,7 @@ export default function AdminWithdrawalsPage() {
 
       {/* Modal */}
       {showModal && selectedWithdrawal && (
-        <Modal onClose={() => setShowModal(false)}>
+        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
           <div className="bg-white rounded-lg p-6 max-w-lg w-full space-y-4">
             <h2 className="text-xl font-bold text-gray-900">
               {modalMode === 'approve' && 'Approve Withdrawal'}

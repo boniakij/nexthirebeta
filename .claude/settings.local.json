@@ -104,7 +104,10 @@
       "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/trainer-packages.png\" \"http://localhost:3000/trainer/packages\")",
       "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/trainer-packages-fixed.png\" \"http://localhost:3000/trainer/packages\")",
       "Bash(google-chrome --headless=new --window-size=1280,3000 --screenshot=\"/tmp/packages-working.png\" \"http://localhost:3000/trainer/packages\")",
-      "Bash(php *)"
+      "Bash(php *)",
+      "Bash(curl -s http://localhost:3000/trainer/withdrawals)",
+      "Bash(curl -s http://localhost:3000/trainer/payout-methods)",
+      "Bash(npx tsc *)"
     ]
   }
 }
