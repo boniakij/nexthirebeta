@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { Edit, Save, X, Download, Upload, FileText, Star, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
+import { Edit, Save, X, Star, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface TrainerProfile {
@@ -133,66 +133,6 @@ export default function TrainerProfilePage() {
           )}
         </div>
       </div>
-
-      {/* Resume Section (Prominent) */}
-      <Card className="border-2 border-primary-200 bg-primary-50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-primary-600" />
-              Resume
-            </h2>
-            {!isEditMode && (
-              <Button variant="primary" className="flex items-center gap-2">
-                <Download className="w-5 h-5" />
-                Download Resume
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardBody>
-          {profile.resume_url ? (
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <FileText className="w-10 h-10 text-gray-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{profile.resume_url}</p>
-                    <p className="text-sm text-gray-600">PDF Document</p>
-                    <Button variant="outline" className="mt-2 text-sm flex items-center gap-2">
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {!isEditMode && (
-                <div className="bg-white rounded-lg p-6 border border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-4">Resume Preview</h3>
-                  <div className="bg-gray-100 rounded-lg p-4 h-96 flex items-center justify-center text-gray-500">
-                    <div className="text-center">
-                      <FileText className="w-12 h-12 mx-auto mb-2" />
-                      <p>PDF Preview</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No resume uploaded yet</p>
-              <Button variant="primary" className="mt-4 flex items-center gap-2 mx-auto">
-                <Upload className="w-5 h-5" />
-                Upload Resume
-              </Button>
-            </div>
-          )}
-        </CardBody>
-      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
