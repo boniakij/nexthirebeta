@@ -98,7 +98,8 @@
       "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/profile-with-fallback.png\" \"http://localhost:3000/trainer/profile\")",
       "Bash(google-chrome --headless=new --window-size=1280,4000 --screenshot=\"/tmp/profile-immediate.png\" \"http://localhost:3000/trainer/profile\")",
       "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/trainer-dashboard.png\" \"http://localhost:3000/trainer\")",
-      "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/trainer-dashboard-page.png\" \"http://localhost:3000/trainer/dashboard\")"
+      "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/trainer-dashboard-page.png\" \"http://localhost:3000/trainer/dashboard\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/dashboard-loaded.png\" \"http://localhost:3000/trainer/dashboard\")"
     ]
   }
 }

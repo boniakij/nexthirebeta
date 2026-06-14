@@ -1,8 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Badge, Button, EmptyState, Spinner, StarRating } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
 import { TrendingUp, AlertCircle, BarChart3, Star, Clock, CheckCircle2 } from 'lucide-react';
@@ -246,19 +245,7 @@ function TrainerDashboardContent() {
 }
 
 export default function TrainerDashboard() {
-  return (
-    <RoleGuard allowedRoles={['trainer']}>
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center min-h-screen">
-            <Spinner size="lg" />
-          </div>
-        }
-      >
-        <TrainerDashboardContent />
-      </Suspense>
-    </RoleGuard>
-  );
+  return <TrainerDashboardContent />;
 }
 
 function getMockDashboardData() {
