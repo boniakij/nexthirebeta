@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 
-import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Badge, Button, Modal, Input, Spinner } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
@@ -317,19 +316,7 @@ function PackagesContent() {
 }
 
 export default function PackagesPage() {
-  return (
-    <RoleGuard allowedRoles={['trainer']}>
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center min-h-screen">
-            <Spinner size="lg" />
-          </div>
-        }
-      >
-        <PackagesContent />
-      </Suspense>
-    </RoleGuard>
-  );
+  return <PackagesContent />;
 }
 
 function getMockPackages(): Package[] {

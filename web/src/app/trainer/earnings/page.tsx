@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 
-import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Badge, Input, Button, Spinner } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -253,19 +252,7 @@ function EarningsContent() {
 }
 
 export default function EarningsPage() {
-  return (
-    <RoleGuard allowedRoles={['trainer']}>
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center min-h-screen">
-            <Spinner size="lg" />
-          </div>
-        }
-      >
-        <EarningsContent />
-      </Suspense>
-    </RoleGuard>
-  );
+  return <EarningsContent />;
 }
 
 function getMockSummary(): EarningsSummary {

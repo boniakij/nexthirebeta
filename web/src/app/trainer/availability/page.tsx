@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 
-import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Button, Badge, Spinner, Input } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
@@ -222,19 +221,7 @@ function AvailabilityContent() {
 }
 
 export default function AvailabilityPage() {
-  return (
-    <RoleGuard allowedRoles={['trainer']}>
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center min-h-screen">
-            <Spinner size="lg" />
-          </div>
-        }
-      >
-        <AvailabilityContent />
-      </Suspense>
-    </RoleGuard>
-  );
+  return <AvailabilityContent />;
 }
 
 function getMockSlots(date: string): TimeSlot[] {
