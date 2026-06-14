@@ -78,8 +78,7 @@ class PaymentService
      */
     private function getSslcommerzPaymentUrl(Payment $payment): string
     {
-        // Placeholder - integrate with actual SSLCommerz SDK
-        return config('services.sslcommerz.store_id') . '/payment/' . $payment->id;
+        return config('services.sslcommerz.base_url', 'http://localhost:3000') . '/payment/simulate?payment_id=' . $payment->id . '&gateway=sslcommerz&amount=' . $payment->amount;
     }
 
     /**
@@ -87,8 +86,7 @@ class PaymentService
      */
     private function getBkashPaymentUrl(Payment $payment): string
     {
-        // Placeholder - integrate with actual bKash SDK
-        return config('services.bkash.base_url') . '/payment/' . $payment->id;
+        return config('services.bkash.base_url', 'http://localhost:3000') . '/payment/simulate?payment_id=' . $payment->id . '&gateway=bkash&amount=' . $payment->amount;
     }
 
     /**

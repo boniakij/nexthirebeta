@@ -22,23 +22,39 @@ apiClient.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     const original = error.config as any;
+
+    // Skip interception for login/register/refresh endpoints to avoid redirect loops on auth failures
+    if (original.url?.includes('/auth/login') || original.url?.includes('/auth/register') || original.url?.includes('/auth/refresh')) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
       try {
         if (typeof window !== 'undefined') {
           const refreshToken = localStorage.getItem('refresh_token');
+          if (!refreshToken) {
+            // No refresh token, user not logged in
+            return Promise.reject(error);
+          }
           const { data } = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/auth/refresh`,
             { refresh_token: refreshToken }
           );
-          localStorage.setItem('access_token', data.data.access_token);
-          original.headers.Authorization = `Bearer ${data.data.access_token}`;
-          return apiClient(original);
+
+          if (data.success && data.data.access_token) {
+            localStorage.setItem('access_token', data.data.access_token);
+            original.headers.Authorization = `Bearer ${data.data.access_token}`;
+            return apiClient(original);
+          } else {
+            throw new Error('Refresh failed');
+          }
         }
-      } catch {
+      } catch (refreshError) {
         if (typeof window !== 'undefined') {
-          localStorage.clear();
-          window.location.href = '/login';
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/auth/login';
         }
       }
     }

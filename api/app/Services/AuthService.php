@@ -145,7 +145,7 @@ class AuthService
 
     private function createRoleProfile(User $user, array $data): void
     {
-        match ($user->role) {
+        match ($user->role->value ?? $user->role) {
             'student' => Student::create([
                 'user_id' => $user->id,
                 'full_name' => $data['full_name'],

@@ -50,6 +50,12 @@ export default function HomePage() {
     { id: 6, name: 'Hassan Khan', domains: ['Mobile', 'React Native'], rating: 4.8, price_per_hour: 500 },
   ]);
 
+  const [packages, setPackages] = useState<any[]>([
+    { id: 1, title: 'Beginner Interview Prep', price: 2000, difficulty_level: 'beginner', duration: '30 mins', trainer_id: 1 },
+    { id: 2, title: 'Intermediate Interview Prep', price: 3500, difficulty_level: 'intermediate', duration: '45 mins', trainer_id: 1 },
+    { id: 3, title: 'Advanced Interview Prep', price: 5000, difficulty_level: 'advanced', duration: '60 mins', trainer_id: 2 },
+  ]);
+
   useEffect(() => {
     const fetchTrainers = async () => {
       try {
@@ -62,6 +68,20 @@ export default function HomePage() {
       }
     };
     fetchTrainers();
+  }, []);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const res = await axios.get('/api/interview-packages?per_page=6');
+        if (res.data?.data?.length > 0) {
+          setPackages(res.data.data);
+        }
+      } catch (err) {
+        console.log('Using mock packages data');
+      }
+    };
+    fetchPackages();
   }, []);
 
   return (
@@ -228,6 +248,59 @@ export default function HomePage() {
             <Link href="/trainers">
               <Button variant="outline" className="w-full gap-2">
                 View All Trainers <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Interview Packages Section */}
+      <section className="py-24 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-end mb-12 gap-4">
+            <div>
+              <h2 className="text-sm font-bold text-primary-600 tracking-wide uppercase mb-2">Courses</h2>
+              <h3 className="text-3xl sm:text-5xl font-bold text-gray-900">Interview Packages</h3>
+            </div>
+            <Link href="/packages">
+              <Button variant="outline" className="hidden sm:flex gap-2">
+                View All Packages <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {packages.map((pkg) => (
+              <Card key={pkg.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-gray-200 flex flex-col h-full group">
+                <div className="p-6 flex-1">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="primary" className="text-xs capitalize">
+                      {pkg.difficulty_level}
+                    </Badge>
+                    <span className="text-xs text-gray-500">⏱️ {pkg.duration}</span>
+                  </div>
+                  <h4 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                    {pkg.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {pkg.description || 'Professional interview preparation with personalized feedback'}
+                  </p>
+                </div>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between mt-auto">
+                  <div className="font-bold text-gray-900 text-lg">
+                    ৳{pkg.price?.toLocaleString()}
+                  </div>
+                  <Link href={`/packages/${pkg.id}`}>
+                    <Button size="sm">View Package</Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/packages">
+              <Button variant="outline" className="w-full gap-2">
+                View All Packages <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
           </div>

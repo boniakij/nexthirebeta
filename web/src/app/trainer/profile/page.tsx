@@ -1,313 +1,364 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { RoleGuard } from '@/components/auth/RoleGuard';
+import { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { trainerApi } from '@/lib/api/trainer';
-import { X, Plus } from 'lucide-react';
-
-interface Certification {
-  name: string;
-  issuer: string;
-  year: number;
-}
-
-interface Experience {
-  company: string;
-  role: string;
-  years: number;
-}
+import { Edit, Save, X, Download, Upload, FileText, Star, Users, TrendingUp, Award } from 'lucide-react';
 
 interface TrainerProfile {
+  id: number;
+  user_email: string;
   full_name: string;
   bio: string;
-  expertise_domains: string[];
-  years_experience: number;
-  certifications: Certification[];
-  experience: Experience[];
+  expertise: string[];
+  qualifications: string[];
   hourly_rate: number;
-  language: string;
+  experience_years: number;
+  total_sessions: number;
+  average_rating: number;
+  total_reviews: number;
+  total_earnings: number;
+  resume_url?: string;
+  profile_photo?: string;
+  certifications?: string[];
+  languages?: string[];
+  created_at: string;
 }
 
-const DOMAINS = [
-  'Software Engineering',
-  'Cybersecurity',
-  'DevOps',
-  'Data & AI',
-  'HR/Behavioral',
-  'Business/Finance',
-  'Design',
-  'Government/Viva',
-];
-
-function ProfileContent() {
-  const [formData, setFormData] = useState<TrainerProfile>({
-    full_name: 'Arjun Kumar',
-    bio: 'Expert software architect with 12+ years of experience',
-    expertise_domains: ['System Design', 'Backend'],
-    years_experience: 12,
-    certifications: [
-      { name: 'AWS Solutions Architect', issuer: 'Amazon', year: 2021 },
-    ],
-    experience: [
-      { company: 'Tech Corp', role: 'Senior Engineer', years: 5 },
-    ],
-    hourly_rate: 500,
-    language: 'English',
-  });
-
-  const [newCert, setNewCert] = useState({ name: '', issuer: '', year: new Date().getFullYear() });
-  const [newExp, setNewExp] = useState({ company: '', role: '', years: 1 });
-  const [loading, setLoading] = useState(false);
-
-  const handleSaveProfile = async () => {
-    try {
-      setLoading(true);
-      await trainerApi.updateProfile(formData);
-      alert('Profile updated successfully!');
-    } catch (error) {
-      console.error('Failed to save profile:', error);
-      alert('Failed to save profile');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addCertification = () => {
-    if (newCert.name && newCert.issuer) {
-      setFormData({
-        ...formData,
-        certifications: [...formData.certifications, newCert],
-      });
-      setNewCert({ name: '', issuer: '', year: new Date().getFullYear() });
-    }
-  };
-
-  const removeCertification = (idx: number) => {
-    setFormData({
-      ...formData,
-      certifications: formData.certifications.filter((_, i) => i !== idx),
-    });
-  };
-
-  const addExperience = () => {
-    if (newExp.company && newExp.role) {
-      setFormData({
-        ...formData,
-        experience: [...formData.experience, newExp],
-      });
-      setNewExp({ company: '', role: '', years: 1 });
-    }
-  };
-
-  const removeExperience = (idx: number) => {
-    setFormData({
-      ...formData,
-      experience: formData.experience.filter((_, i) => i !== idx),
-    });
-  };
-
-  const toggleDomain = (domain: string) => {
-    const isSelected = formData.expertise_domains.includes(domain);
-    setFormData({
-      ...formData,
-      expertise_domains: isSelected
-        ? formData.expertise_domains.filter((d) => d !== domain)
-        : [...formData.expertise_domains, domain],
-    });
-  };
-
-  return (
-    <div className="space-y-6 max-w-4xl">
-      <h1 className="text-3xl font-bold text-gray-900">👤 My Profile</h1>
-
-      {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <h2 className="font-bold text-gray-900">Basic Information</h2>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          <Input
-            label="Full Name"
-            value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-          />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="Tell students about yourself..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600"
-              rows={4}
-            />
-          </div>
-
-          <Input
-            label="Years of Experience"
-            type="number"
-            value={formData.years_experience}
-            onChange={(e) => setFormData({ ...formData, years_experience: parseInt(e.target.value) })}
-          />
-
-          <Input
-            label="Hourly Rate (BDT)"
-            type="number"
-            value={formData.hourly_rate}
-            onChange={(e) => setFormData({ ...formData, hourly_rate: parseInt(e.target.value) })}
-          />
-
-          <Input
-            label="Language"
-            value={formData.language}
-            onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-          />
-        </CardBody>
-      </Card>
-
-      {/* Expertise Domains */}
-      <Card>
-        <CardHeader>
-          <h2 className="font-bold text-gray-900">Expertise Domains</h2>
-        </CardHeader>
-        <CardBody>
-          <div className="space-y-2">
-            {DOMAINS.map((domain) => (
-              <label key={domain} className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.expertise_domains.includes(domain)}
-                  onChange={() => toggleDomain(domain)}
-                  className="w-4 h-4"
-                />
-                <span className="text-gray-700">{domain}</span>
-              </label>
-            ))}
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Certifications */}
-      <Card>
-        <CardHeader>
-          <h2 className="font-bold text-gray-900">Certifications</h2>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          {formData.certifications.map((cert, idx) => (
-            <div key={idx} className="p-3 bg-gray-50 rounded-btn flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{cert.name}</p>
-                <p className="text-sm text-gray-600">{cert.issuer} • {cert.year}</p>
-              </div>
-              <button
-                onClick={() => removeCertification(idx)}
-                className="p-1 hover:bg-red-100 rounded transition"
-              >
-                <X className="w-4 h-4 text-danger-600" />
-              </button>
-            </div>
-          ))}
-
-          <div className="space-y-2 pt-4 border-t border-gray-200">
-            <label className="text-sm font-medium text-gray-700 block">Add Certification</label>
-            <Input
-              placeholder="Certification name"
-              value={newCert.name}
-              onChange={(e) => setNewCert({ ...newCert, name: e.target.value })}
-            />
-            <Input
-              placeholder="Issuing organization"
-              value={newCert.issuer}
-              onChange={(e) => setNewCert({ ...newCert, issuer: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="Year"
-              value={newCert.year}
-              onChange={(e) => setNewCert({ ...newCert, year: parseInt(e.target.value) })}
-            />
-            <Button onClick={addCertification} variant="outline" className="w-full flex items-center justify-center gap-2">
-              <Plus className="w-4 h-4" />
-              Add Certification
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Experience */}
-      <Card>
-        <CardHeader>
-          <h2 className="font-bold text-gray-900">Work Experience</h2>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          {formData.experience.map((exp, idx) => (
-            <div key={idx} className="p-3 bg-gray-50 rounded-btn flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{exp.role} at {exp.company}</p>
-                <p className="text-sm text-gray-600">{exp.years} {exp.years === 1 ? 'year' : 'years'}</p>
-              </div>
-              <button
-                onClick={() => removeExperience(idx)}
-                className="p-1 hover:bg-red-100 rounded transition"
-              >
-                <X className="w-4 h-4 text-danger-600" />
-              </button>
-            </div>
-          ))}
-
-          <div className="space-y-2 pt-4 border-t border-gray-200">
-            <label className="text-sm font-medium text-gray-700 block">Add Experience</label>
-            <Input
-              placeholder="Company name"
-              value={newExp.company}
-              onChange={(e) => setNewExp({ ...newExp, company: e.target.value })}
-            />
-            <Input
-              placeholder="Job role"
-              value={newExp.role}
-              onChange={(e) => setNewExp({ ...newExp, role: e.target.value })}
-            />
-            <Input
-              type="number"
-              placeholder="Years"
-              min="1"
-              value={newExp.years}
-              onChange={(e) => setNewExp({ ...newExp, years: parseInt(e.target.value) })}
-            />
-            <Button onClick={addExperience} variant="outline" className="w-full flex items-center justify-center gap-2">
-              <Plus className="w-4 h-4" />
-              Add Experience
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Save Button */}
-      <div className="flex gap-3">
-        <Button onClick={handleSaveProfile} loading={loading} className="flex-1">
-          Save Profile
-        </Button>
-      </div>
-    </div>
-  );
-}
+const mockTrainerProfile: TrainerProfile = {
+  id: 1,
+  user_email: 'john.smith@nexthire.com',
+  full_name: 'John Smith',
+  bio: 'Experienced IELTS trainer with 10+ years of teaching English to international students.',
+  expertise: ['IELTS', 'English', 'Writing', 'Speaking'],
+  qualifications: ['Bachelor in English Literature', 'IELTS Certified', 'TEFL Certified'],
+  hourly_rate: 50,
+  experience_years: 10,
+  total_sessions: 250,
+  average_rating: 4.8,
+  total_reviews: 145,
+  total_earnings: 12500,
+  resume_url: 'john_smith_resume.pdf',
+  profile_photo: 'https://via.placeholder.com/150',
+  certifications: ['IELTS', 'TEFL', 'CELTA'],
+  languages: ['English', 'Spanish', 'French'],
+  created_at: '2026-03-15',
+};
 
 export default function TrainerProfilePage() {
+  const [profile, setProfile] = useState<TrainerProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editData, setEditData] = useState<Partial<TrainerProfile>>({});
+
+  useEffect(() => {
+    // TODO: Replace with actual API call
+    // const { data } = await trainerApi.getProfile();
+
+    // Mock data
+    setTimeout(() => {
+      setProfile(mockTrainerProfile);
+      setEditData(mockTrainerProfile);
+      setLoading(false);
+    }, 500);
+  }, []);
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+    setEditData(profile || {});
+  };
+
+  const handleSave = async () => {
+    // TODO: Call API to save profile
+    if (profile) {
+      setProfile({ ...profile, ...editData });
+    }
+    setIsEditMode(false);
+  };
+
+  const handleCancel = () => {
+    setIsEditMode(false);
+    setEditData(profile || {});
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-gray-600">Profile not found</p>
+      </div>
+    );
+  }
+
   return (
-    <RoleGuard allowedRoles={['trainer']}>
-      <DashboardLayout>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center min-h-screen">
-              <Spinner size="lg" />
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">{profile.full_name}</h1>
+          <p className="text-gray-600 mt-2">{profile.user_email}</p>
+        </div>
+        <div className="flex gap-2">
+          {!isEditMode ? (
+            <Button variant="primary" className="flex items-center gap-2" onClick={handleEdit}>
+              <Edit className="w-5 h-5" />
+              Edit Profile
+            </Button>
+          ) : (
+            <>
+              <Button variant="primary" className="flex items-center gap-2 bg-green-600 hover:bg-green-700" onClick={handleSave}>
+                <Save className="w-5 h-5" />
+                Save
+              </Button>
+              <Button variant="outline" className="flex items-center gap-2" onClick={handleCancel}>
+                <X className="w-5 h-5" />
+                Cancel
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Resume Section (Prominent) */}
+      <Card className="border-2 border-primary-200 bg-primary-50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <FileText className="w-6 h-6 text-primary-600" />
+              Resume
+            </h2>
+            {!isEditMode && (
+              <Button variant="primary" className="flex items-center gap-2">
+                <Download className="w-5 h-5" />
+                Download Resume
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardBody>
+          {profile.resume_url ? (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-6 border border-gray-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <FileText className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">{profile.resume_url}</p>
+                    <p className="text-sm text-gray-600">PDF Document</p>
+                    <Button variant="outline" className="mt-2 text-sm flex items-center gap-2">
+                      <Download className="w-4 h-4" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {!isEditMode && (
+                <div className="bg-white rounded-lg p-6 border border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-4">Resume Preview</h3>
+                  <div className="bg-gray-100 rounded-lg p-4 h-96 flex items-center justify-center text-gray-500">
+                    <div className="text-center">
+                      <FileText className="w-12 h-12 mx-auto mb-2" />
+                      <p>PDF Preview</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          }
-        >
-          <ProfileContent />
-        </Suspense>
-      </DashboardLayout>
-    </RoleGuard>
+          ) : (
+            <div className="text-center py-8">
+              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No resume uploaded yet</p>
+              <Button variant="primary" className="mt-4 flex items-center gap-2 mx-auto">
+                <Upload className="w-5 h-5" />
+                Upload Resume
+              </Button>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardBody>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Rating</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2 flex items-center gap-1">
+                  <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                  {profile.average_rating}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">({profile.total_reviews} reviews)</p>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <div>
+              <p className="text-gray-600 text-sm">Total Sessions</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{profile.total_sessions}</p>
+              <p className="text-xs text-gray-500 mt-1">Students trained</p>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <div>
+              <p className="text-gray-600 text-sm">Experience</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{profile.experience_years}+</p>
+              <p className="text-xs text-gray-500 mt-1">Years teaching</p>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody>
+            <div>
+              <p className="text-gray-600 text-sm">Total Earnings</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">${profile.total_earnings.toLocaleString()}</p>
+              <p className="text-xs text-gray-500 mt-1">Lifetime earnings</p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Profile Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Bio */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900">About Me</h3>
+          </CardHeader>
+          <CardBody>
+            {isEditMode ? (
+              <textarea
+                value={editData.bio || ''}
+                onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
+                rows={4}
+              />
+            ) : (
+              <p className="text-gray-700">{profile.bio}</p>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Expertise */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <Award className="w-5 h-5" />
+              Expertise
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-wrap gap-2">
+              {profile.expertise.map((exp, idx) => (
+                <Badge key={idx} variant="primary">
+                  {exp}
+                </Badge>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Qualifications */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Qualifications
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <ul className="space-y-2">
+              {profile.qualifications.map((qual, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-gray-700">
+                  <span className="text-primary-600">✓</span>
+                  {qual}
+                </li>
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
+
+        {/* Certifications */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <Award className="w-5 h-5" />
+              Certifications
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-wrap gap-2">
+              {profile.certifications?.map((cert, idx) => (
+                <Badge key={idx} variant="success">
+                  {cert}
+                </Badge>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Languages */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Languages
+            </h3>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-wrap gap-2">
+              {profile.languages?.map((lang, idx) => (
+                <Badge key={idx} variant="purple">
+                  {lang}
+                </Badge>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Hourly Rate */}
+        <Card>
+          <CardHeader>
+            <h3 className="font-bold text-gray-900">Hourly Rate</h3>
+          </CardHeader>
+          <CardBody>
+            {isEditMode ? (
+              <Input
+                type="number"
+                value={editData.hourly_rate || ''}
+                onChange={(e) => setEditData({ ...editData, hourly_rate: parseFloat(e.target.value) })}
+                className="w-full"
+              />
+            ) : (
+              <p className="text-3xl font-bold text-primary-600">${profile.hourly_rate}/hour</p>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Member Since */}
+      <Card>
+        <CardBody>
+          <p className="text-gray-600">
+            Member since <span className="font-semibold text-gray-900">{profile.created_at}</span>
+          </p>
+        </CardBody>
+      </Card>
+    </div>
   );
 }

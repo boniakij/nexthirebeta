@@ -1,265 +1,405 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { RoleGuard } from '@/components/auth/RoleGuard';
-import { Card, CardBody, CardHeader, Button, Input, Badge, Spinner } from '@/components/ui';
-import { ProgressBar } from '@/components/ui';
-import { Upload, X } from 'lucide-react';
-import Link from 'next/link';
+import { Card, CardBody, CardHeader, Badge, Spinner, Button, Input } from '@/components/ui';
+import { studentApi } from '@/lib/api/student';
+import { ResumeDisplay } from './resume-display';
+import { Mail, Phone, MapPin, Briefcase, GraduationCap, Zap, Trophy, Award, Edit2, Check, X } from 'lucide-react';
 
-function ProfileContent() {
-  const [profileCompletion, setProfileCompletion] = useState(75);
-  const [formData, setFormData] = useState({
-    fullName: 'John Doe',
-    email: 'john@example.com',
-    phone: '+1234567890',
-    university: 'MIT',
-    department: 'Computer Science',
-    graduationYear: 2024,
-    preferredJobRole: 'Software Engineer',
-    country: 'United States',
-    linkedIn: 'linkedin.com/in/johndoe',
-    github: 'github.com/johndoe',
-    skills: ['JavaScript', 'React', 'Node.js', 'Python'],
-    resume: 'resume.pdf',
-  });
+function StudentProfileContent() {
+  const [student, setStudent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [newSkill, setNewSkill] = useState('');
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-  const addSkill = () => {
-    if (newSkill.trim() && !formData.skills.includes(newSkill)) {
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...prev.skills, newSkill],
-      }));
-      setNewSkill('');
+  const fetchProfile = async () => {
+    try {
+      const { data } = await studentApi.getProfile();
+      setStudent(data.data);
+      setEditData(data.data);
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removeSkill = (skill: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((s) => s !== skill),
-    }));
+  const handleSaveProfile = async () => {
+    if (!editData) return;
+    setIsSaving(true);
+    try {
+      await studentApi.updateProfile({
+        full_name: editData.full_name,
+        university: editData.university,
+        department: editData.department,
+        graduation_year: editData.graduation_year,
+        skills: editData.skills,
+        preferred_job_role: editData.preferred_job_role,
+        linkedin_url: editData.linkedin_url,
+        github_url: editData.github_url,
+        country_code: editData.country_code,
+      });
+      setStudent(editData);
+      setIsEditing(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Failed to save profile:', error);
+      alert('Failed to save profile');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSave = () => {
-    // Save profile
-    alert('Profile saved!');
+  const handleResumeUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      await studentApi.uploadResume(formData);
+      fetchProfile();
+    } catch (error) {
+      console.error('Failed to upload resume:', error);
+      throw error;
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
+          <p className="text-gray-600 mt-2">View your profile and resume</p>
+        </div>
+        <Button
+          variant={isEditing ? 'outline' : 'primary'}
+          className="h-11 flex items-center gap-2"
+          onClick={() => {
+            if (isEditing) {
+              setEditData(student);
+              setIsEditing(false);
+            } else {
+              setIsEditing(true);
+            }
+          }}
+        >
+          {isEditing ? (
+            <>
+              <X className="w-5 h-5" />
+              Cancel
+            </>
+          ) : (
+            <>
+              <Edit2 className="w-5 h-5" />
+              Edit Profile
+            </>
+          )}
+        </Button>
+      </div>
 
-      {/* Profile Completion */}
-      <Card>
-        <CardHeader>
-          <h2 className="font-bold text-gray-900">Profile Completion</h2>
-        </CardHeader>
-        <CardBody>
-          <ProgressBar value={profileCompletion} max={100} label={`${profileCompletion}% Complete`} />
-          <p className="text-sm text-gray-600 mt-3">Missing: Resume, LinkedIn URL</p>
-        </CardBody>
-      </Card>
-
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-bold text-gray-900">Basic Information</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Full Name"
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, fullName: e.target.value }))
-                  }
-                />
-                <Input
-                  label="Email"
-                  type="email"
-                  value={formData.email}
-                  disabled
-                />
-              </div>
-              <Input
-                label="Phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
-                }
-              />
-            </CardBody>
-          </Card>
+        {/* Left Column - Resume (Main Focus) */}
+        <div className="lg:col-span-2">
+          <ResumeDisplay
+            resumePath={student?.resume_path}
+            fullName={student?.full_name || 'Student'}
+            isOwnProfile={true}
+            onUploadResume={handleResumeUpload}
+          />
+        </div>
 
-          {/* Education */}
+        {/* Right Column - Profile Info */}
+        <div className="space-y-6">
+          {/* Basic Info Card */}
           <Card>
             <CardHeader>
-              <h2 className="font-bold text-gray-900">Education</h2>
+              <h3 className="font-bold text-gray-900">Basic Information</h3>
             </CardHeader>
             <CardBody className="space-y-4">
-              <Input
-                label="University"
-                value={formData.university}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, university: e.target.value }))
-                }
-              />
-              <Input
-                label="Department"
-                value={formData.department}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    department: e.target.value,
-                  }))
-                }
-              />
-              <Input
-                label="Graduation Year"
-                type="number"
-                value={formData.graduationYear}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    graduationYear: parseInt(e.target.value),
-                  }))
-                }
-              />
-            </CardBody>
-          </Card>
-
-          {/* Career Information */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-bold text-gray-900">Career Information</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <Input
-                label="Preferred Job Role"
-                value={formData.preferredJobRole}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    preferredJobRole: e.target.value,
-                  }))
-                }
-              />
-              <Input
-                label="Country"
-                value={formData.country}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, country: e.target.value }))
-                }
-              />
-              <Input
-                label="LinkedIn URL"
-                placeholder="linkedin.com/in/yourprofile"
-                value={formData.linkedIn}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, linkedIn: e.target.value }))
-                }
-              />
-              <Input
-                label="GitHub URL"
-                placeholder="github.com/yourprofile"
-                value={formData.github}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, github: e.target.value }))
-                }
-              />
-            </CardBody>
-          </Card>
-
-          {/* Skills */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-bold text-gray-900">Skills</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add a skill (e.g., React, Python)"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                />
-                <Button onClick={addSkill} size="sm">
-                  Add
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.skills.map((skill) => (
-                  <Badge key={skill} variant="primary" className="flex items-center gap-1">
-                    {skill}
-                    <button
-                      onClick={() => removeSkill(skill)}
-                      className="ml-1 hover:opacity-70"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Resume */}
-          <Card>
-            <CardHeader>
-              <h2 className="font-bold text-gray-900">Resume</h2>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-btn p-6 text-center hover:bg-gray-50 transition cursor-pointer">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="font-semibold text-gray-900">Drag and drop your resume</p>
-                <p className="text-sm text-gray-600">or click to browse (PDF, max 5MB)</p>
-              </div>
-              {formData.resume && (
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-btn">
-                  <span className="text-sm font-medium text-gray-900">{formData.resume}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, resume: '' }))
-                    }
-                  >
-                    Remove
-                  </Button>
-                </div>
+              {isEditing ? (
+                <>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">Full Name</label>
+                    <Input
+                      value={editData.full_name}
+                      onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                      placeholder="Full Name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">Email</label>
+                    <Input
+                      value={editData.email}
+                      disabled
+                      className="opacity-50 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Cannot be changed</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                      <span className="text-primary-600 font-bold">
+                        {student?.full_name?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{student?.full_name}</p>
+                      <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
+                        <Mail className="w-4 h-4" />
+                        {student?.email}
+                      </div>
+                    </div>
+                  </div>
+                </>
               )}
             </CardBody>
           </Card>
 
-          {/* Save Button */}
-          <Button onClick={handleSave} className="w-full">
-            Save Profile
-          </Button>
-        </div>
-
-        {/* Avatar Card */}
-        <div>
+          {/* Education Card */}
           <Card>
-            <CardBody className="text-center">
-              <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-purple-400 rounded-full flex items-center justify-center text-white text-5xl mx-auto mb-4">
-                JD
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-primary-600" />
+                <h3 className="font-bold text-gray-900">Education</h3>
               </div>
-              <p className="font-semibold text-gray-900 mb-1">John Doe</p>
-              <p className="text-sm text-gray-600 mb-4">Student</p>
-              <Button variant="outline" className="w-full">
-                Change Photo
-              </Button>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              {isEditing ? (
+                <>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">University</label>
+                    <Input
+                      value={editData.university || ''}
+                      onChange={(e) => setEditData({ ...editData, university: e.target.value })}
+                      placeholder="University Name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">Department</label>
+                    <Input
+                      value={editData.department || ''}
+                      onChange={(e) => setEditData({ ...editData, department: e.target.value })}
+                      placeholder="Department"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">Graduation Year</label>
+                    <Input
+                      type="number"
+                      value={editData.graduation_year || new Date().getFullYear()}
+                      onChange={(e) => setEditData({ ...editData, graduation_year: parseInt(e.target.value) })}
+                      placeholder="Year"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm text-gray-600">University</p>
+                    <p className="font-semibold text-gray-900">{student?.university || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Department</p>
+                    <p className="font-semibold text-gray-900">{student?.department || 'Not specified'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Graduation Year</p>
+                    <p className="font-semibold text-gray-900">{student?.graduation_year || 'Not specified'}</p>
+                  </div>
+                </>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Career Card */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-primary-600" />
+                <h3 className="font-bold text-gray-900">Career</h3>
+              </div>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              {isEditing ? (
+                <>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">Preferred Job Role</label>
+                    <Input
+                      value={editData.preferred_job_role || ''}
+                      onChange={(e) => setEditData({ ...editData, preferred_job_role: e.target.value })}
+                      placeholder="e.g., Backend Developer"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">LinkedIn URL</label>
+                    <Input
+                      value={editData.linkedin_url || ''}
+                      onChange={(e) => setEditData({ ...editData, linkedin_url: e.target.value })}
+                      placeholder="https://linkedin.com/in/..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 block mb-2">GitHub URL</label>
+                    <Input
+                      value={editData.github_url || ''}
+                      onChange={(e) => setEditData({ ...editData, github_url: e.target.value })}
+                      placeholder="https://github.com/..."
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm text-gray-600">Preferred Job Role</p>
+                    <p className="font-semibold text-gray-900">{student?.preferred_job_role || 'Not specified'}</p>
+                  </div>
+                  {student?.linkedin_url && (
+                    <div>
+                      <p className="text-sm text-gray-600">LinkedIn</p>
+                      <a href={student.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
+                        View Profile →
+                      </a>
+                    </div>
+                  )}
+                  {student?.github_url && (
+                    <div>
+                      <p className="text-sm text-gray-600">GitHub</p>
+                      <a href={student.github_url} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
+                        View Profile →
+                      </a>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Stats Card */}
+          <Card>
+            <CardHeader>
+              <h3 className="font-bold text-gray-900">Performance</h3>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-yellow-500" />
+                  <p className="text-sm text-gray-600">Total XP</p>
+                </div>
+                <p className="font-bold text-gray-900">{student?.total_xp || 0}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-blue-500" />
+                  <p className="text-sm text-gray-600">Level</p>
+                </div>
+                <Badge variant="primary">Level {student?.current_level || 1}</Badge>
+              </div>
             </CardBody>
           </Card>
         </div>
       </div>
+
+      {/* Skills Section */}
+      <Card>
+        <CardHeader>
+          <h3 className="font-bold text-gray-900">Skills</h3>
+        </CardHeader>
+        <CardBody>
+          {isEditing ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {editData.skills?.map((skill: string, idx: number) => (
+                  <Badge key={idx} variant="primary">
+                    {skill}
+                    <button
+                      onClick={() => {
+                        setEditData({
+                          ...editData,
+                          skills: editData.skills.filter((_: string, i: number) => i !== idx)
+                        });
+                      }}
+                      className="ml-2 hover:text-white"
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  id="newSkill"
+                  placeholder="Add a skill (e.g., React)"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value) {
+                      const skill = e.currentTarget.value;
+                      if (!editData.skills?.includes(skill)) {
+                        setEditData({
+                          ...editData,
+                          skills: [...(editData.skills || []), skill]
+                        });
+                      }
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {student?.skills && student.skills.length > 0 ? (
+                student.skills.map((skill: string, idx: number) => (
+                  <Badge key={idx} variant="primary">
+                    {skill}
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-gray-600">No skills added yet</p>
+              )}
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* Save Button (Edit Mode) */}
+      {isEditing && (
+        <div className="flex gap-3">
+          <Button
+            variant="primary"
+            className="flex-1 h-11 flex items-center justify-center gap-2"
+            onClick={handleSaveProfile}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <Spinner size="sm" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check className="w-5 h-5" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -268,14 +408,8 @@ export default function StudentProfilePage() {
   return (
     <RoleGuard allowedRoles={['student']}>
       <DashboardLayout>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center min-h-screen">
-              <Spinner size="lg" />
-            </div>
-          }
-        >
-          <ProfileContent />
+        <Suspense fallback={<Spinner size="lg" />}>
+          <StudentProfileContent />
         </Suspense>
       </DashboardLayout>
     </RoleGuard>

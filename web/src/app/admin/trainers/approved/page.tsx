@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
@@ -180,7 +181,7 @@ export default function ApprovedTrainersPage() {
                           <p className="font-semibold text-gray-900">{trainer.name}</p>
                           <div className="flex gap-1 mt-1 flex-wrap">
                             {trainer.expertise.map(exp => (
-                              <Badge key={exp} variant="blue" className="text-xs">
+                              <Badge key={exp} variant="primary" className="text-xs">
                                 {exp}
                               </Badge>
                             ))}

@@ -15,9 +15,15 @@ class Student extends Model
         'user_id', 'full_name', 'university', 'department', 'graduation_year', 'skills',
         'preferred_job_role', 'linkedin_url', 'github_url', 'resume_path', 'profile_completion',
         'total_xp', 'current_level', 'streak_days', 'last_active_at', 'country_code',
+        'notification_settings', 'privacy_settings',
     ];
 
-    protected $casts = ['skills' => 'array', 'last_active_at' => 'datetime'];
+    protected $casts = [
+        'skills' => 'array',
+        'notification_settings' => 'array',
+        'privacy_settings' => 'array',
+        'last_active_at' => 'datetime'
+    ];
 
     public function user(): BelongsTo
     {

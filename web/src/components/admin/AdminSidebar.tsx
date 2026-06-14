@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, UserCheck, Building2, Briefcase,
   MessageSquare, Zap, Star, BarChart3, FileText, Settings,
@@ -183,17 +183,43 @@ const menuItems: MenuItem[] = [
 
 export function AdminSidebar({ open }: { open: boolean }) {
   const pathname = usePathname();
-  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   const isActive = (href?: string) => {
     if (!href) return false;
-    return pathname.startsWith(href);
+    const [hrefPath, hrefQuery] = href.split('?');
+    if (pathname !== hrefPath) return false;
+
+    if (hrefQuery) {
+      const params = new URLSearchParams(hrefQuery);
+      for (const [key, value] of params.entries()) {
+        if (searchParams.get(key) !== value) return false;
+      }
+      return true;
+    }
+
+    // If href has no query params, but the current URL does, it shouldn't match.
+    // e.g., '/admin/users' should not be active when viewing '/admin/users?role=student'
+    const hasParams = Array.from(searchParams.keys()).length > 0;
+    if (hasParams && hrefPath === '/admin/users') {
+      return false;
+    }
+
+    return true;
   };
 
   const isMenuActive = (submenu?: Array<{ href: string }>) => {
     if (!submenu) return false;
-    return submenu.some(item => pathname.startsWith(item.href));
+    return submenu.some(item => {
+      const [hrefPath] = item.href.split('?');
+      return pathname.startsWith(hrefPath);
+    });
   };
+
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(() => {
+    const activeItem = menuItems.find(item => isMenuActive(item.submenu));
+    return activeItem ? activeItem.title : null;
+  });
 
   return (
     <aside

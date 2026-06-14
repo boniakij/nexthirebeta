@@ -7,7 +7,7 @@ export const companyApi = {
   },
 
   // Campaigns
-  getCampaigns: async (filters?: { status?: string; per_page?: number; cursor?: string } = {}) => {
+  getCampaigns: async (filters: { status?: string; per_page?: number; cursor?: string } = {}) => {
     return apiClient.get('/companies/me/campaigns', { params: filters });
   },
 
@@ -26,11 +26,11 @@ export const companyApi = {
   },
 
   // Candidates
-  getCandidates: async (filters?: { skill?: string; domain?: string; min_xp?: number; country_code?: string; per_page?: number } = {}) => {
+  getCandidates: async (filters: { skill?: string; domain?: string; min_xp?: number; country_code?: string; per_page?: number } = {}) => {
     return apiClient.get('/companies/me/candidates', { params: filters });
   },
 
-  getCandidatesByCampaign: async (campaignId: number, filters?: { per_page?: number } = {}) => {
+  getCandidatesByCampaign: async (campaignId: number, filters: { per_page?: number } = {}) => {
     return apiClient.get(`/companies/me/campaigns/${campaignId}/candidates`, { params: filters });
   },
 
@@ -43,7 +43,7 @@ export const companyApi = {
   },
 
   // Inbox
-  getInbox: async (filters?: { per_page?: number } = {}) => {
+  getInbox: async (filters: { per_page?: number } = {}) => {
     return apiClient.get('/companies/me/inbox', { params: filters });
   },
 

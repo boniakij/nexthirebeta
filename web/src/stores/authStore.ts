@@ -33,7 +33,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await authApi.login({ email, password });
-          const { access_token, refresh_token, user } = data.data;
+          const { user, tokens } = data.data;
+          const { access_token, refresh_token } = tokens;
 
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', refresh_token);
@@ -116,6 +117,12 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Ensure isLoading is false after hydration
+          state.isLoading = false;
+        }
+      },
     }
   )
 );

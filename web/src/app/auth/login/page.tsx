@@ -49,7 +49,8 @@ export default function LoginPage() {
       if (responseData.success) {
         // Set both tokens AND user data from the correct nested properties
         const { user, tokens } = responseData.data;
-        setTokens(tokens.access_token, tokens.refresh_token);
+        const { access_token, refresh_token } = tokens;
+        setTokens(access_token, refresh_token);
         const { setUser } = useAuthStore.getState();
         setUser(user);
 

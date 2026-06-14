@@ -3,7 +3,7 @@ import type { ApiResponse, AuthTokens, User } from '@/types';
 
 export const authApi = {
   login: async (data: { email: string; password: string }) => {
-    return apiClient.post<ApiResponse<{ user: User; access_token: string; refresh_token: string; expires_in: number }>>(
+    return apiClient.post<ApiResponse<{ user: User; tokens: AuthTokens }>>(
       '/auth/login',
       data
     );

@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
@@ -288,7 +289,7 @@ export default function TrainersPage() {
                       <td className="py-3 px-4">
                         <div className="flex gap-1 flex-wrap">
                           {trainer.expertise.map(exp => (
-                            <Badge key={exp} variant="blue" className="text-xs">
+                            <Badge key={exp} variant="primary" className="text-xs">
                               {exp}
                             </Badge>
                           ))}

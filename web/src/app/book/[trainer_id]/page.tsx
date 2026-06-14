@@ -5,6 +5,8 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Card, CardBody, CardHeader, Button, Badge } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
+import { bookingApi } from '@/lib/api/booking';
+import { paymentApi } from '@/lib/api/payment';
 import { ChevronLeft, ChevronRight, CheckCircle2, Clock, Users, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,8 +24,17 @@ export default function BookingPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [availabilitySlots, setAvailabilitySlots] = useState<any[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<string>('sslcommerz');
   const [loading, setLoading] = useState(true);
+
+  // Set default selectedDate to tomorrow
+  useEffect(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateString = tomorrow.toISOString().split('T')[0];
+    setSelectedDate(dateString);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +54,31 @@ export default function BookingPage() {
     fetchData();
   }, [trainerId]);
 
-  const availableTimeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    const fetchAvailability = async () => {
+      try {
+        const { data } = await trainerApi.getAvailability(trainerId, selectedDate);
+        setAvailabilitySlots(data.data || []);
+      } catch (error) {
+        console.error('Failed to fetch availability:', error);
+        setAvailabilitySlots([]);
+      }
+    };
+
+    fetchAvailability();
+  }, [trainerId, selectedDate]);
+
+  const formatTimeSlot = (timeString: string) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    let hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    hour = hour ? hour : 12;
+    return `${hour}:${minutes} ${ampm}`;
+  };
 
   const handleNextStep = () => {
     if (step === 1 && !selectedPackage) {

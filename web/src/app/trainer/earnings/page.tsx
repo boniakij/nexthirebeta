@@ -80,7 +80,13 @@ function EarningsContent() {
     );
   }
 
-  const stats = summary || getMockSummary();
+  const mockSummary = getMockSummary();
+  const stats: EarningsSummary = {
+    total_earnings: summary?.total_earnings ?? mockSummary.total_earnings,
+    this_month: summary?.this_month ?? mockSummary.this_month,
+    pending_payout: summary?.pending_payout ?? mockSummary.pending_payout,
+    commission_paid: summary?.commission_paid ?? mockSummary.commission_paid,
+  };
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner, Modal } from '@/components/ui';
@@ -160,7 +161,7 @@ export default function PendingTrainersPage() {
                       <p className="text-sm text-gray-600">{trainer.user_email}</p>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {trainer.expertise.map(exp => (
-                          <Badge key={exp} variant="blue" className="text-xs">
+                          <Badge key={exp} variant="primary" className="text-xs">
                             {exp}
                           </Badge>
                         ))}

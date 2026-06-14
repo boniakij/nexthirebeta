@@ -25,6 +25,9 @@ Route::prefix('v1')->group(function () {
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
         Route::post('google', [AuthController::class, 'googleLogin']);
         Route::post('refresh', [AuthController::class, 'refresh']);
+
+        // Protected logout route
+        Route::middleware('auth:api')->post('logout', [AuthController::class, 'logout']);
     });
 
     // Public Student Routes
@@ -58,6 +61,8 @@ Route::prefix('v1')->group(function () {
             Route::get('me/evaluations', [StudentController::class, 'evaluations']);
             Route::get('me/badges', [StudentController::class, 'badges']);
             Route::get('me/xp-history', [StudentController::class, 'xpHistory']);
+            Route::get('me/settings', [StudentController::class, 'getSettings']);
+            Route::put('me/settings', [StudentController::class, 'updateSettings']);
         });
 
         // Company Routes

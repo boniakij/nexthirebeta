@@ -10,8 +10,8 @@ export const trainerApi = {
     return apiClient.get(`/trainers/${id}`);
   },
 
-  getAvailability: async (id: number) => {
-    return apiClient.get(`/trainers/${id}/availability`);
+  getAvailability: async (id: number, date?: string) => {
+    return apiClient.get(`/trainers/${id}/availability`, { params: { date } });
   },
 
   // Authenticated trainer endpoints

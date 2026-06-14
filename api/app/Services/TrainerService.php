@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Trainer;
 use App\Models\TrainerAvailability;
-use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TrainerService
 {
@@ -16,7 +16,7 @@ class TrainerService
         $minRating = null,
         $page = 1,
         $perPage = 15
-    ): Paginator {
+    ): LengthAwarePaginator {
         $query = Trainer::query()
             ->where('is_approved', true)
             ->with('user');
@@ -69,6 +69,7 @@ class TrainerService
                 'phone' => $trainer->user->phone,
                 'profile_photo' => $trainer->user->profile_photo,
             ],
+            'packages' => $trainer->packages,
         ];
     }
 

@@ -24,7 +24,7 @@ function XPHistoryContent() {
   useEffect(() => {
     const fetchXPHistory = async () => {
       try {
-        const { data } = await studentApi.getXPHistory();
+        const { data } = await studentApi.getXpHistory();
         setEvents(data.data || []);
 
         // Calculate total XP

@@ -463,4 +463,85 @@ class StudentService
             ->where('total_xp', '>', $student->total_xp)
             ->count() + 1;
     }
+
+    /**
+     * Get student settings
+     */
+    public function getSettings(Student $student): array
+    {
+        return [
+            'notification_settings' => $student->notification_settings ?? [
+                'email_notifications' => true,
+                'session_reminders' => true,
+                'interview_updates' => true,
+                'badges_unlocked' => true,
+                'marketing_emails' => false,
+            ],
+            'privacy_settings' => $student->privacy_settings ?? [
+                'profile_visibility' => 'public',
+                'show_xp' => true,
+                'show_badges' => true,
+                'show_activity' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Update student settings
+     */
+    public function updateSettings(Student $student, $user, array $data): array
+    {
+        try {
+            // Update notification settings
+            if (isset($data['notification_settings'])) {
+                $student->notification_settings = array_merge(
+                    $student->notification_settings ?? [],
+                    $data['notification_settings']
+                );
+            }
+
+            // Update privacy settings
+            if (isset($data['privacy_settings'])) {
+                $student->privacy_settings = array_merge(
+                    $student->privacy_settings ?? [],
+                    $data['privacy_settings']
+                );
+            }
+
+            // Update phone if provided
+            if (isset($data['phone'])) {
+                $user->phone = $data['phone'];
+                $user->save();
+            }
+
+            // Update password if provided
+            if (isset($data['new_password']) && isset($data['current_password'])) {
+                if (!\Hash::check($data['current_password'], $user->password)) {
+                    return [
+                        'success' => false,
+                        'message' => 'Current password is incorrect',
+                        'status_code' => 400,
+                    ];
+                }
+
+                $user->password = \Hash::make($data['new_password']);
+                $user->save();
+            }
+
+            $student->save();
+
+            return [
+                'success' => true,
+                'message' => 'Settings updated successfully',
+                'data' => $this->getSettings($student),
+                'status_code' => 200,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update settings: ' . $e->getMessage(),
+                'status_code' => 500,
+            ];
+        }
+    }
 }

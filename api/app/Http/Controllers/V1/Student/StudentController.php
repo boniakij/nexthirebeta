@@ -245,4 +245,68 @@ class StudentController extends Controller
             'data' => $this->studentService->formatPublicProfile($student),
         ]);
     }
+
+    /**
+     * Get student settings
+     * GET /students/me/settings
+     */
+    public function getSettings(): JsonResponse
+    {
+        $student = auth()->user()->student;
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not a student',
+            ], 400);
+        }
+
+        $settings = $this->studentService->getSettings($student);
+
+        return response()->json([
+            'success' => true,
+            'data' => $settings,
+        ]);
+    }
+
+    /**
+     * Update student settings
+     * PUT /students/me/settings
+     */
+    public function updateSettings(Request $request): JsonResponse
+    {
+        $student = auth()->user()->student;
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not a student',
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'notification_settings' => 'sometimes|array',
+            'notification_settings.email_notifications' => 'sometimes|boolean',
+            'notification_settings.session_reminders' => 'sometimes|boolean',
+            'notification_settings.interview_updates' => 'sometimes|boolean',
+            'notification_settings.badges_unlocked' => 'sometimes|boolean',
+            'notification_settings.marketing_emails' => 'sometimes|boolean',
+            'privacy_settings' => 'sometimes|array',
+            'privacy_settings.profile_visibility' => 'sometimes|in:public,private,trainers_only',
+            'privacy_settings.show_xp' => 'sometimes|boolean',
+            'privacy_settings.show_badges' => 'sometimes|boolean',
+            'privacy_settings.show_activity' => 'sometimes|boolean',
+            'phone' => 'sometimes|nullable|string|max:20',
+            'current_password' => 'sometimes|string',
+            'new_password' => 'sometimes|string|min:8|confirmed',
+        ]);
+
+        $result = $this->studentService->updateSettings($student, auth()->user(), $validated);
+
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'data' => $result['data'] ?? null,
+        ], $result['status_code']);
+    }
 }

@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'sslcommerz' => [
+        'store_id' => env('SSLCOMMERZ_STORE_ID', 'dev-store-id'),
+        'store_password' => env('SSLCOMMERZ_STORE_PASSWORD', 'dev-password'),
+        'base_url' => env('SSLCOMMERZ_BASE_URL', 'http://localhost:3000'),
+    ],
+
+    'bkash' => [
+        'base_url' => env('BKASH_BASE_URL', 'http://localhost:3000'),
+        'webhook_token' => env('BKASH_WEBHOOK_TOKEN', 'dev-token'),
+    ],
+
 ];

@@ -1,289 +1,323 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, Suspense } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { RoleGuard } from '@/components/auth/RoleGuard';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { adminApi } from '@/lib/api/admin';
-import { Search, Ban, CheckCircle2, Shield } from 'lucide-react';
+import {
+  Search, Download, Eye, Edit, Trash2, CheckCircle,
+  AlertCircle, Lock, Users, UserCheck, Building2
+} from 'lucide-react';
 
 interface User {
   id: number;
-  name: string;
+  uuid: string;
   email: string;
   role: 'student' | 'trainer' | 'company' | 'admin';
-  status: 'active' | 'inactive' | 'banned';
+  status: 'active' | 'suspended' | 'pending';
+  phone?: string;
   created_at: string;
-  verified: boolean;
 }
 
-function UsersContent() {
+const ROLES = ['all', 'student', 'trainer', 'company', 'admin'];
+const STATUSES = ['all', 'active', 'suspended', 'pending'];
+
+export default function UserManagementPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRole, setSelectedRole] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+
+  const selectedRole = searchParams.get('role') || 'all';
+  const selectedStatus = searchParams.get('status') || 'all';
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data } = await adminApi.getUsers();
-        setUsers(data.data || []);
-        setFilteredUsers(data.data || []);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
-        const mockUsers = getMockUsers();
-        setUsers(mockUsers);
-        setFilteredUsers(mockUsers);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsers();
-  }, []);
+  }, [selectedRole, selectedStatus, searchTerm]);
 
-  useEffect(() => {
-    let filtered = users;
-
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(
-        (u) =>
-          u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          u.email.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (selectedRole) {
-      filtered = filtered.filter((u) => u.role === selectedRole);
-    }
-
-    if (selectedStatus) {
-      filtered = filtered.filter((u) => u.status === selectedStatus);
-    }
-
-    setFilteredUsers(filtered);
-  }, [searchQuery, selectedRole, selectedStatus, users]);
-
-  const handleBanUser = async (userId: number) => {
-    if (confirm('Are you sure you want to ban this user?')) {
-      try {
-        await adminApi.banUser(userId);
-        setUsers(users.map((u) => (u.id === userId ? { ...u, status: 'banned' as const } : u)));
-      } catch (error) {
-        console.error('Failed to ban user:', error);
-      }
-    }
-  };
-
-  const handleUnbanUser = async (userId: number) => {
+  const fetchUsers = async () => {
+    setLoading(true);
     try {
-      await adminApi.unbanUser(userId);
-      setUsers(users.map((u) => (u.id === userId ? { ...u, status: 'active' as const } : u)));
+      // TODO: Replace with actual API call
+      // const { data } = await adminApi.getUsers({ role: selectedRole, status: selectedStatus });
+
+      setTimeout(() => {
+        const mockUsers: User[] = [
+          { id: 1, uuid: 'uuid-1', email: 'student1@nexthire.com', role: 'student', status: 'active', phone: '+8801700000001', created_at: '2026-06-01' },
+          { id: 2, uuid: 'uuid-2', email: 'student2@nexthire.com', role: 'student', status: 'active', phone: '+8801700000002', created_at: '2026-05-28' },
+          { id: 3, uuid: 'uuid-3', email: 'trainer1@nexthire.com', role: 'trainer', status: 'active', phone: '+8801700000003', created_at: '2026-05-15' },
+          { id: 4, uuid: 'uuid-4', email: 'company1@nexthire.com', role: 'company', status: 'pending', phone: '+8801700000004', created_at: '2026-06-04' },
+          { id: 5, uuid: 'uuid-5', email: 'suspended@nexthire.com', role: 'student', status: 'suspended', phone: '+8801700000005', created_at: '2026-05-20' },
+          { id: 6, uuid: 'uuid-6', email: 'admin2@nexthire.com', role: 'admin', status: 'active', phone: '+8801700000006', created_at: '2026-04-01' },
+        ];
+
+        let filtered = mockUsers;
+        if (selectedRole !== 'all') {
+          filtered = filtered.filter(u => u.role === selectedRole);
+        }
+        if (selectedStatus !== 'all') {
+          filtered = filtered.filter(u => u.status === selectedStatus);
+        }
+        if (searchTerm) {
+          filtered = filtered.filter(u =>
+            u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            u.phone?.includes(searchTerm)
+          );
+        }
+        setUsers(filtered);
+        setLoading(false);
+      }, 500);
     } catch (error) {
-      console.error('Failed to unban user:', error);
+      console.error('Failed to fetch users:', error);
+      setLoading(false);
     }
   };
 
-  const getRoleColor = (role: string) => {
+  const handleSelectAll = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users.map(u => u.id));
+    }
+  };
+
+  const handleSelectUser = (id: number) => {
+    setSelectedUsers(prev =>
+      prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
+    );
+  };
+
+  const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'student':
-        return 'bg-blue-100 text-blue-800';
-      case 'trainer':
-        return 'bg-purple-100 text-purple-800';
-      case 'company':
-        return 'bg-green-100 text-green-800';
-      case 'admin':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'student': return <UserCheck className="w-4 h-4" />;
+      case 'trainer': return <CheckCircle className="w-4 h-4" />;
+      case 'company': return <Building2 className="w-4 h-4" />;
+      case 'admin': return <Lock className="w-4 h-4" />;
+      default: return <Users className="w-4 h-4" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'warning';
-      case 'banned':
-        return 'danger';
-      default:
-        return 'primary';
+      case 'active': return 'success';
+      case 'suspended': return 'danger';
+      case 'pending': return 'warning';
+      default: return 'gray';
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'student': return 'blue';
+      case 'trainer': return 'green';
+      case 'company': return 'purple';
+      case 'admin': return 'red';
+      default: return 'gray';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">👥 Users Management</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+          <p className="text-gray-600 mt-2">Manage all users on the platform</p>
+        </div>
+        <Button variant="primary" className="flex items-center gap-2">
+          <Download className="w-5 h-5" />
+          Export Users
+        </Button>
+      </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-lg font-bold text-gray-900">Filters</h2>
-        </CardHeader>
-        <CardBody>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Search */}
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name or email..."
-                  className="pl-9"
-                />
-              </div>
-            </div>
+      <div className="bg-white rounded-lg p-6 space-y-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+          <Input
+            placeholder="Search by email or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
 
-            {/* Role Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600"
-              >
-                <option value="">All Roles</option>
-                <option value="student">Student</option>
-                <option value="trainer">Trainer</option>
-                <option value="company">Company</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600"
-              >
-                <option value="">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="banned">Banned</option>
-              </select>
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700">Role:</span>
+            <div className="flex gap-2">
+              {ROLES.map(role => (
+                <button
+                  key={role}
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (role === 'all') params.delete('role');
+                    else params.set('role', role);
+                    router.push(`/admin/users?${params.toString()}`);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedRole === role
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
-        </CardBody>
-      </Card>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700">Status:</span>
+            <div className="flex gap-2">
+              {STATUSES.map(status => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    if (status === 'all') params.delete('status');
+                    else params.set('status', status);
+                    router.push(`/admin/users?${params.toString()}`);
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedStatus === status
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <h2 className="text-lg font-bold text-gray-900">
-            Users ({filteredUsers.length})
+        <CardHeader className="flex items-center justify-between">
+          <h2 className="font-bold text-gray-900">
+            Users ({users.length})
           </h2>
+          {selectedUsers.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">
+                {selectedUsers.length} selected
+              </span>
+              <Button
+                variant="outline"
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                Delete Selected
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Email</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Role</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Status</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Verified</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Joined</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                    <td className="py-3 px-4 font-medium text-gray-900">{user.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{user.email}</td>
-                    <td className="py-3 px-4 text-center">
-                      <Badge variant={user.role === 'admin' ? 'danger' : user.role === 'trainer' ? 'purple' : 'primary'}>
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <Badge variant={getStatusColor(user.status)}>
-                        {user.status}
-                      </Badge>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {user.verified ? (
-                        <CheckCircle2 className="w-5 h-5 text-success-500 mx-auto" />
-                      ) : (
-                        <Ban className="w-5 h-5 text-gray-400 mx-auto" />
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-center text-sm text-gray-600">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {user.status === 'banned' ? (
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => handleUnbanUser(user.id)}
-                        >
-                          Unban
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => handleBanUser(user.id)}
-                        >
-                          Ban
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
-  );
-}
-
-export default function UsersPage() {
-  return (
-    <RoleGuard allowedRoles={['admin']}>
-      <DashboardLayout>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center min-h-screen">
+          {loading ? (
+            <div className="flex justify-center py-12">
               <Spinner size="lg" />
             </div>
-          }
-        >
-          <UsersContent />
-        </Suspense>
-      </DashboardLayout>
-    </RoleGuard>
-  );
-}
+          ) : users.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No users found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.length === users.length && users.length > 0}
+                        onChange={handleSelectAll}
+                        className="w-4 h-4"
+                      />
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Email</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Role</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Joined</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={() => handleSelectUser(user.id)}
+                          className="w-4 h-4"
+                        />
+                      </td>
+                      <td className="py-3 px-4">
+                        <div>
+                          <p className="font-semibold text-gray-900">{user.email}</p>
+                          <p className="text-sm text-gray-500">{user.phone}</p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge
+                          variant={getRoleColor(user.role) as any}
+                          className="flex items-center gap-1 w-fit"
+                        >
+                          {getRoleIcon(user.role)}
+                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge
+                          variant={getStatusColor(user.status) as any}
+                          className="flex items-center gap-1 w-fit"
+                        >
+                          {user.status === 'active' && <CheckCircle className="w-4 h-4" />}
+                          {user.status === 'suspended' && <AlertCircle className="w-4 h-4" />}
+                          {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-600">{user.created_at}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <button className="p-2 hover:bg-blue-50 rounded-lg transition-colors" title="View">
+                            <Eye className="w-4 h-4 text-blue-600" />
+                          </button>
+                          <button className="p-2 hover:bg-yellow-50 rounded-lg transition-colors" title="Edit">
+                            <Edit className="w-4 h-4 text-yellow-600" />
+                          </button>
+                          <button className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardBody>
+      </Card>
 
-function getMockUsers(): User[] {
-  return [
-    { id: 1, name: 'Arjun Kumar', email: 'arjun@example.com', role: 'student', status: 'active', created_at: '2026-01-15', verified: true },
-    { id: 2, name: 'Priya Sharma', email: 'priya@example.com', role: 'trainer', status: 'active', created_at: '2026-02-10', verified: true },
-    { id: 3, name: 'Tech Corp Inc', email: 'contact@techcorp.com', role: 'company', status: 'active', created_at: '2026-03-05', verified: true },
-    { id: 4, name: 'Rahul Singh', email: 'rahul@example.com', role: 'student', status: 'inactive', created_at: '2025-12-20', verified: false },
-    { id: 5, name: 'Fatima Ahmed', email: 'fatima@example.com', role: 'trainer', status: 'banned', created_at: '2026-01-08', verified: true },
-    { id: 6, name: 'Admin User', email: 'admin@nexthire.com', role: 'admin', status: 'active', created_at: '2025-11-01', verified: true },
-    { id: 7, name: 'Nadia Islam', email: 'nadia@example.com', role: 'student', status: 'active', created_at: '2026-04-12', verified: true },
-    { id: 8, name: 'Vikram Patel', email: 'vikram@example.com', role: 'trainer', status: 'active', created_at: '2026-03-20', verified: false },
-  ];
+      {/* Pagination */}
+      {users.length > 0 && (
+        <div className="flex items-center justify-between bg-white p-4 rounded-lg">
+          <p className="text-sm text-gray-600">
+            Showing <strong>1</strong> to <strong>{users.length}</strong> of <strong>{users.length}</strong> users
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" disabled>Previous</Button>
+            <Button variant="outline" disabled>Next</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

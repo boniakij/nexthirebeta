@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { Spinner } from '@/components/ui';
@@ -10,7 +10,7 @@ interface RoleGuardProps {
   allowedRoles: string[];
 }
 
-export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
+function RoleGuardInner({ children, allowedRoles }: RoleGuardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, isLoading } = useAuthStore();
@@ -53,4 +53,16 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   }
 
   return <>{children}</>;
+}
+
+export function RoleGuard(props: RoleGuardProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Spinner size="lg" />
+      </div>
+    }>
+      <RoleGuardInner {...props} />
+    </Suspense>
+  );
 }
