@@ -95,4 +95,29 @@ class Trainer extends Model
     {
         return $this->hasMany(TrainerAchievement::class);
     }
+
+    public function weeklySchedules(): HasMany
+    {
+        return $this->hasMany(TrainerWeeklySchedule::class);
+    }
+
+    public function availabilitySlots(): HasMany
+    {
+        return $this->hasMany(TrainerAvailabilitySlot::class);
+    }
+
+    public function recurringAvailabilityRules(): HasMany
+    {
+        return $this->hasMany(TrainerRecurringAvailabilityRule::class);
+    }
+
+    public function blockedDates(): HasMany
+    {
+        return $this->hasMany(TrainerBlockedDate::class);
+    }
+
+    public function bookingRules()
+    {
+        return $this->hasOne(TrainerBookingRule::class);
+    }
 }

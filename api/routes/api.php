@@ -21,6 +21,9 @@ use App\Http\Controllers\V1\Trainer\PaymentMethodController;
 use App\Http\Controllers\V1\Trainer\TrainerSkillController;
 use App\Http\Controllers\V1\Trainer\TrainerEducationController;
 use App\Http\Controllers\V1\Trainer\TrainerAchievementController;
+use App\Http\Controllers\V1\Trainer\TrainerAvailabilityController;
+use App\Http\Controllers\V1\Trainer\TrainerWeeklyScheduleController;
+use App\Http\Controllers\V1\Trainer\TrainerBookingRuleController;
 use App\Http\Controllers\V1\Admin\CommissionSettingController;
 use App\Http\Controllers\V1\Admin\WithdrawalController as AdminWithdrawalController;
 
@@ -144,7 +147,28 @@ Route::prefix('v1')->group(function () {
             Route::post('me/achievements', [TrainerAchievementController::class, 'store']);
             Route::put('me/achievements/{id}', [TrainerAchievementController::class, 'update']);
             Route::delete('me/achievements/{id}', [TrainerAchievementController::class, 'destroy']);
+
+            // Availability Routes
+            Route::get('me/availability/calendar', [TrainerAvailabilityController::class, 'calendar']);
+            Route::post('me/availability/slots', [TrainerAvailabilityController::class, 'addSlot']);
+            Route::delete('me/availability/slots/{slotId}', [TrainerAvailabilityController::class, 'deleteSlot']);
+
+            // Weekly Schedule Routes
+            Route::get('me/availability/weekly-schedule', [TrainerWeeklyScheduleController::class, 'index']);
+            Route::put('me/availability/weekly-schedule', [TrainerWeeklyScheduleController::class, 'update']);
+
+            // Blocked Dates Routes
+            Route::get('me/availability/blocked-dates', [TrainerBlockedDateController::class, 'index']);
+            Route::post('me/availability/blocked-dates', [TrainerBlockedDateController::class, 'store']);
+            Route::delete('me/availability/blocked-dates/{blockedDateId}', [TrainerBlockedDateController::class, 'destroy']);
+
+            // Booking Rules Routes
+            Route::get('me/availability/booking-rules', [TrainerBookingRuleController::class, 'show']);
+            Route::put('me/availability/booking-rules', [TrainerBookingRuleController::class, 'update']);
         });
+
+        // Public Student Availability Routes
+        Route::get('trainers/{trainerId}/availability/slots', [TrainerAvailabilityController::class, 'getAvailableSlots']);
 
         // Booking Routes
         Route::prefix('bookings')->group(function () {
