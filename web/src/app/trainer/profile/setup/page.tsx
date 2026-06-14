@@ -192,9 +192,11 @@ export default function TrainerProfileSetup() {
     window.scrollTo(0, 0);
   };
 
-  const handleSubmit = async () => {
-    if (!validateStep(5)) {
-      setError('Please fill all required fields');
+  const handleSave = async (completeProfile: boolean = false) => {
+    const currentStepValid = completeProfile ? validateStep(5) : validateStep(step);
+
+    if (!currentStepValid) {
+      setError('Please fill all required fields in this step');
       return;
     }
 
@@ -205,8 +207,15 @@ export default function TrainerProfileSetup() {
       const { data } = await apiClient.post('/trainers/me/profile', formData);
 
       if (data.success) {
-        alert('Profile saved successfully!');
-        window.location.href = '/trainer/dashboard';
+        if (completeProfile) {
+          alert('Profile saved successfully!');
+          window.location.href = '/trainer/profile';
+        } else {
+          alert('Progress saved!');
+          if (step < 5) {
+            handleNext();
+          }
+        }
       } else {
         throw new Error(data.message || 'Failed to save profile');
       }
@@ -214,6 +223,10 @@ export default function TrainerProfileSetup() {
       setError(err.response?.data?.message || err.message || 'Failed to save profile');
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async () => {
+    await handleSave(true);
   };
 
   return (
@@ -572,26 +585,39 @@ export default function TrainerProfileSetup() {
             </Button>
           )}
           <div className="flex-1" />
-          {step < 5 ? (
-            <Button
-              variant="primary"
-              className="flex gap-2 px-8"
-              onClick={handleNext}
-            >
-              Next
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              className="flex gap-2 px-8"
-              onClick={handleSubmit}
-              loading={loading}
-            >
-              <Save className="w-5 h-5" />
-              Save Profile
-            </Button>
-          )}
+          <div className="flex gap-3">
+            {step < 5 && (
+              <Button
+                variant="outline"
+                className="flex gap-2 px-6"
+                onClick={() => handleSave(false)}
+                loading={loading}
+              >
+                <Save className="w-5 h-5" />
+                Save Progress
+              </Button>
+            )}
+            {step < 5 ? (
+              <Button
+                variant="primary"
+                className="flex gap-2 px-8"
+                onClick={handleNext}
+              >
+                Next
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                className="flex gap-2 px-8"
+                onClick={handleSubmit}
+                loading={loading}
+              >
+                <Save className="w-5 h-5" />
+                Complete & Save
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
