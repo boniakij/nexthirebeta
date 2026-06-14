@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 function TrainerDashboardContent() {
   const [dashboardData, setDashboardData] = useState<any>(getMockDashboardData());
+  const [walletData, setWalletData] = useState<any>(getMockWalletData());
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -38,8 +39,34 @@ function TrainerDashboardContent() {
       }
     };
 
+    const fetchWallet = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch('/api/v1/trainers/me/wallet', {
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.success && data?.data) {
+            setWalletData(data.data);
+          }
+        }
+      } catch (error) {
+        console.log('Using mock wallet data');
+      }
+    };
+
     // Fetch in background
     fetchDashboard();
+    fetchWallet();
   }, []);
 
   const stats = dashboardData;
@@ -66,6 +93,46 @@ function TrainerDashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Wallet Balance Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardBody className="text-center">
+            <p className="text-sm text-gray-600 mb-1">Available Balance</p>
+            <p className="text-3xl font-bold text-green-600">৳{walletData.available_balance?.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-2">Ready to withdraw</p>
+            <Link href="/trainer/withdrawals" className="block mt-3">
+              <Button size="sm" variant="primary" className="w-full">
+                Withdraw
+              </Button>
+            </Link>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <p className="text-sm text-gray-600 mb-1">Pending Balance</p>
+            <p className="text-3xl font-bold text-yellow-600">৳{walletData.pending_balance?.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-2">After refund window</p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <p className="text-sm text-gray-600 mb-1">Total Earned</p>
+            <p className="text-3xl font-bold text-gray-900">৳{walletData.total_earned?.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-2">All time</p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <p className="text-sm text-gray-600 mb-1">Withdrawn</p>
+            <p className="text-3xl font-bold text-gray-900">৳{walletData.withdrawn_amount?.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-2">Total paid out</p>
+          </CardBody>
+        </Card>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -231,6 +298,16 @@ function TrainerDashboardContent() {
                   Set Availability
                 </Button>
               </Link>
+              <Link href="/trainer/withdrawals" className="block">
+                <Button variant="outline" className="w-full justify-center">
+                  Withdraw Money
+                </Button>
+              </Link>
+              <Link href="/trainer/payout-methods" className="block">
+                <Button variant="outline" className="w-full justify-center">
+                  Payout Methods
+                </Button>
+              </Link>
               <Link href="/trainer/earnings" className="block">
                 <Button variant="outline" className="w-full justify-center">
                   View Earnings
@@ -255,5 +332,17 @@ function getMockDashboardData() {
     average_rating: 4.8,
     pending_evaluations: 3,
     is_approved: true,
+  };
+}
+
+function getMockWalletData() {
+  return {
+    currency: 'BDT',
+    total_earned: 125000,
+    available_balance: 18500,
+    pending_balance: 6200,
+    withdrawn_amount: 54300,
+    minimum_withdraw_amount: 1000,
+    withdrawal_allowed: true,
   };
 }

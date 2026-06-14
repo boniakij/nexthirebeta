@@ -134,76 +134,106 @@ export default function WithdrawalsPage() {
 
       {/* Wallet Summary */}
       {wallet && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <>
           <Card>
-            <CardBody className="text-center">
-              <p className="text-sm text-gray-600">Total Earned</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">
-                {wallet.currency} {wallet.total_earned?.toLocaleString()}
-              </p>
-            </CardBody>
-          </Card>
+            <CardHeader>
+              <h2 className="text-lg font-bold text-gray-900">💰 Wallet Summary</h2>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-gray-600">Available Balance</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">
+                    {wallet.currency} {wallet.available_balance?.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Ready to withdraw</p>
+                </div>
 
-          <Card>
-            <CardBody className="text-center">
-              <p className="text-sm text-gray-600">Available Balance</p>
-              <p className="text-2xl font-bold text-green-600 mt-2">
-                {wallet.currency} {wallet.available_balance?.toLocaleString()}
-              </p>
-            </CardBody>
-          </Card>
+                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <p className="text-sm text-gray-600">Pending Balance</p>
+                  <p className="text-3xl font-bold text-yellow-600 mt-2">
+                    {wallet.currency} {wallet.pending_balance?.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Available after session completion and refund window</p>
+                </div>
 
-          <Card>
-            <CardBody className="text-center">
-              <p className="text-sm text-gray-600">Pending Balance</p>
-              <p className="text-2xl font-bold text-yellow-600 mt-2">
-                {wallet.currency} {wallet.pending_balance?.toLocaleString()}
-              </p>
-            </CardBody>
-          </Card>
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-gray-600">Total Earned</p>
+                  <p className="text-3xl font-bold text-blue-600 mt-2">
+                    {wallet.currency} {wallet.total_earned?.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">All time earnings</p>
+                </div>
 
-          <Card>
-            <CardBody className="text-center">
-              <p className="text-sm text-gray-600">Withdrawn</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">
-                {wallet.currency} {wallet.withdrawn_amount?.toLocaleString()}
-              </p>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-600">Withdrawn</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">
+                    {wallet.currency} {wallet.withdrawn_amount?.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Total paid out</p>
+                </div>
+              </div>
             </CardBody>
           </Card>
-        </div>
+        </>
       )}
 
       {/* Request Withdrawal Form */}
       {showForm && (
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-bold text-gray-900">Request Withdrawal</h2>
+            <h2 className="text-lg font-bold text-gray-900">📤 Withdrawal Request</h2>
           </CardHeader>
           <CardBody className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-900">
+                <strong>Minimum withdrawal:</strong> {wallet?.currency} {wallet?.minimum_withdraw_amount?.toLocaleString()}
+              </p>
+              <p className="text-sm text-blue-900 mt-2">
+                <strong>Estimated processing time:</strong> 1-3 business days
+              </p>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Amount (BDT)
+                Withdrawal Amount * ({wallet?.currency})
               </label>
               <Input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount (minimum 1000)"
-                min="1000"
+                placeholder="Enter amount"
+                min={wallet?.minimum_withdraw_amount || 1000}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-2">
                 Available balance: {wallet?.currency} {wallet?.available_balance?.toLocaleString()}
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Note (Optional)
+                Payout Method *
+              </label>
+              <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <strong>Default Method:</strong> bKash - 01XXXXXXXXX
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  <a href="/trainer/payout-methods" className="text-primary-600 hover:underline">
+                    Manage payout methods →
+                  </a>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Trainer Note (Optional)
               </label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Add a note for admin"
+                placeholder="e.g., Monthly withdrawal request"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600"
                 rows={3}
               />
@@ -240,7 +270,7 @@ export default function WithdrawalsPage() {
                 onClick={handleRequestWithdrawal}
                 loading={submitting}
               >
-                Submit Request
+                Submit Withdrawal Request
               </Button>
             </div>
           </CardBody>
@@ -249,13 +279,14 @@ export default function WithdrawalsPage() {
 
       {/* Withdrawal History */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Withdrawal History</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">📜 Withdrawal History</h2>
 
         {withdrawals.length === 0 ? (
           <Card>
             <CardBody className="text-center py-12">
               <TrendingDown className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No withdrawals yet</p>
+              <p className="text-sm text-gray-500 mt-2">Your withdrawal history will appear here</p>
             </CardBody>
           </Card>
         ) : (
@@ -263,28 +294,47 @@ export default function WithdrawalsPage() {
             {withdrawals.map((withdrawal) => (
               <Card key={withdrawal.id}>
                 <CardBody>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-900">
-                          {withdrawal.currency} {withdrawal.amount.toLocaleString()}
-                        </p>
-                        <Badge variant={getStatusColor(withdrawal.status)}>
-                          {withdrawal.status.toUpperCase()}
-                        </Badge>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div>
+                          <p className="font-semibold text-lg text-gray-900">
+                            {withdrawal.currency} {withdrawal.amount.toLocaleString()}
+                          </p>
+                          <Badge variant={getStatusColor(withdrawal.status)} className="mt-2">
+                            {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                          </Badge>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Requested: {new Date(withdrawal.requested_at).toLocaleDateString()}
-                      </p>
-                      {withdrawal.transaction_reference && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Ref: {withdrawal.transaction_reference}
-                        </p>
-                      )}
+
+                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mt-4">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase">Requested Date</p>
+                          <p className="font-semibold text-gray-900">
+                            {new Date(withdrawal.requested_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {withdrawal.paid_at && (
+                          <div>
+                            <p className="text-xs text-gray-500 uppercase">Paid Date</p>
+                            <p className="font-semibold text-gray-900">
+                              {new Date(withdrawal.paid_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        )}
+                        {withdrawal.transaction_reference && (
+                          <div className="col-span-2">
+                            <p className="text-xs text-gray-500 uppercase">Transaction Reference</p>
+                            <p className="font-semibold text-gray-900 font-mono text-sm">
+                              {withdrawal.transaction_reference}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {getStatusIcon(withdrawal.status) && (
-                      <div className="ml-4">{getStatusIcon(withdrawal.status)}</div>
-                    )}
+                    <div className="ml-4 flex-shrink-0">
+                      {getStatusIcon(withdrawal.status)}
+                    </div>
                   </div>
                 </CardBody>
               </Card>

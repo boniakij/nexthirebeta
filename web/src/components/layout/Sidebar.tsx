@@ -27,6 +27,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: 'Packages', href: '/trainer/packages', icon: '📦' },
     { label: 'Availability', href: '/trainer/availability', icon: '📅' },
     { label: 'Earnings', href: '/trainer/earnings', icon: '💰' },
+    { label: 'Withdrawals', href: '/trainer/withdrawals', icon: '🏦' },
     { label: 'Profile', href: '/trainer/profile', icon: '👤' },
   ],
   company: [
