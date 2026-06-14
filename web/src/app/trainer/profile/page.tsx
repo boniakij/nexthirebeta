@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { Edit, Save, X, Star, Users, Award, CheckCircle, Download } from 'lucide-react';
+import { Edit, Save, X, Star, Users, Award, CheckCircle, Download, Upload, Camera } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/lib/api/client';
 
@@ -52,6 +52,9 @@ export default function TrainerProfilePage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState<Partial<TrainerProfile>>(mockTrainerProfile);
   const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(mockTrainerProfile.profile_photo || null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -110,6 +113,63 @@ export default function TrainerProfilePage() {
     setEditData(profile || {});
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setError('');
+
+      // Read file as base64 for preview
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64Data = event.target?.result as string;
+        setImagePreview(base64Data);
+
+        // Upload to API
+        try {
+          const formData = new FormData();
+          formData.append('photo', file);
+
+          const response = await apiClient.post('/trainers/me/profile/photo', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+
+          if (response.data?.success) {
+            if (profile) {
+              setProfile({ ...profile, profile_photo: base64Data });
+            }
+            setEditData({ ...editData, profile_photo: base64Data });
+          }
+        } catch (err: any) {
+          setError('Failed to upload image');
+          console.error('Upload error:', err);
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setError('Failed to process image');
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -139,12 +199,32 @@ export default function TrainerProfilePage() {
       {/* Hero Section */}
       <div className="relative -mx-8 -mt-6 bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-12">
         <div className="max-w-6xl mx-auto flex items-start gap-8">
-          {/* Profile Photo */}
-          <div className="flex-shrink-0">
+          {/* Profile Photo with Upload */}
+          <div className="flex-shrink-0 relative group">
             <img
-              src={profile.profile_photo}
+              src={imagePreview || profile.profile_photo}
               alt={profile.full_name}
               className="w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute bottom-0 right-0 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition disabled:opacity-50"
+              title="Upload photo"
+            >
+              {uploading ? (
+                <Spinner size="sm" />
+              ) : (
+                <Camera className="w-5 h-5 text-blue-600" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              disabled={uploading}
             />
           </div>
 
