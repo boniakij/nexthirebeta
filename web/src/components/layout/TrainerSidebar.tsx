@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
 import {
   LayoutDashboard,
   User,
@@ -39,6 +40,13 @@ const menuItems = [
 
 export function TrainerSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   const isActive = (href: string) => {
     return pathname.startsWith(href.split('/').slice(0, 3).join('/'));
@@ -81,7 +89,10 @@ export function TrainerSidebar() {
 
       {/* Logout */}
       <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-4">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all text-sm font-medium">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-700 hover:bg-red-50 transition-all text-sm font-medium hover:text-red-800"
+        >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           <span>Logout</span>
         </button>

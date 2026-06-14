@@ -1,16 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
+import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardHeader, Badge, Button, EmptyState, Spinner, StarRating } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
-import { TrendingUp, AlertCircle, BarChart3, Star, Clock, CheckCircle2 } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { TrendingUp, AlertCircle, BarChart3, Star, Clock, CheckCircle2, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 function TrainerDashboardContent() {
+  const router = useRouter();
+  const { logout } = useAuthStore();
   const [dashboardData, setDashboardData] = useState<any>(getMockDashboardData());
   const [walletData, setWalletData] = useState<any>(getMockWalletData());
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -81,6 +89,19 @@ function TrainerDashboardContent() {
 
   return (
     <div className="space-y-8">
+      {/* Dashboard Header with Logout */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
+      </div>
+
       {/* Approval Status Banner */}
       {!stats.is_approved && (
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-btn flex items-start gap-3">
