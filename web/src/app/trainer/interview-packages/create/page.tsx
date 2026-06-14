@@ -113,7 +113,7 @@ export default function CreateInterviewPackagePage() {
       case 3:
         return !!(formData.price && Number(formData.price) > 0);
       case 4:
-        return formData.availability_mode === 'existing' || (formData.days_of_week.length > 0 && formData.start_date);
+        return !!(formData.availability_mode === 'existing' || (formData.days_of_week.length > 0 && formData.start_date));
       case 5:
         return !!formData.status;
       default:
