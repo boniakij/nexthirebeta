@@ -815,8 +815,11 @@ export default function TrainerProfilePage() {
 
         {/* Work Experience */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">💼 Work Experience</h2>
-          <Card>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 bg-gradient-to-b from-emerald-600 to-teal-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Work Experience</h2>
+          </div>
+          <Card className="shadow-lg border-0">
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Input placeholder="Company Name *" value={newExperience.company_name} onChange={(e) => setNewExperience({ ...newExperience, company_name: e.target.value })} />
@@ -859,8 +862,11 @@ export default function TrainerProfilePage() {
 
         {/* Education */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">🎓 Education</h2>
-          <Card>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Education</h2>
+          </div>
+          <Card className="shadow-lg border-0">
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Input placeholder="Degree / Qualification *" value={newEducation.degree} onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })} />
@@ -894,8 +900,11 @@ export default function TrainerProfilePage() {
 
         {/* Certifications */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">🏅 Certifications</h2>
-          <Card>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Certifications</h2>
+          </div>
+          <Card className="shadow-lg border-0">
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Input placeholder="Certification Name *" value={newCertification.certification_name} onChange={(e) => setNewCertification({ ...newCertification, certification_name: e.target.value })} />
@@ -934,8 +943,11 @@ export default function TrainerProfilePage() {
 
         {/* Projects / Achievements */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">🚀 Projects & Achievements</h2>
-          <Card>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 bg-gradient-to-b from-red-600 to-rose-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Projects & Achievements</h2>
+          </div>
+          <Card className="shadow-lg border-0">
             <CardBody className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Input placeholder="Title *" value={newProject.title} onChange={(e) => setNewProject({ ...newProject, title: e.target.value })} />
