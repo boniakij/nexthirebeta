@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { Edit, Save, X, Star, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
+import { Edit, Save, X, Star, Users, Award, CheckCircle, Download } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/lib/api/client';
 
@@ -40,7 +40,7 @@ const mockTrainerProfile: TrainerProfile = {
   total_reviews: 145,
   total_earnings: 12500,
   resume_url: 'john_smith_resume.pdf',
-  profile_photo: 'https://via.placeholder.com/150',
+  profile_photo: 'https://via.placeholder.com/200',
   certifications: ['IELTS', 'TEFL', 'CELTA'],
   languages: ['English', 'Spanish', 'French'],
   created_at: '2026-03-15',
@@ -56,7 +56,6 @@ export default function TrainerProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // Try to fetch from API, but don't block UI
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
 
@@ -79,11 +78,9 @@ export default function TrainerProfilePage() {
         }
       } catch (err: any) {
         console.log('Using mock data:', err.message);
-        // Silently fail - already showing mock data
       }
     };
 
-    // Fetch in background without blocking UI
     fetchProfile();
   }, []);
 
@@ -129,103 +126,134 @@ export default function TrainerProfilePage() {
     );
   }
 
+  const profileCompletion = 92;
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       {error && (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
           <p className="text-red-700">{error}</p>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900">{profile.full_name}</h1>
-          <p className="text-gray-600 mt-2">{profile.user_email}</p>
-        </div>
-        <div className="flex gap-2">
-          {!isEditMode ? (
-            <>
-              <Link href="/trainer/profile/setup">
-                <Button variant="primary" className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Complete My Profile
-                </Button>
-              </Link>
-              <Button variant="outline" className="flex items-center gap-2" onClick={handleEdit}>
-                <Edit className="w-5 h-5" />
-                Edit Profile
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="primary" className="flex items-center gap-2 bg-green-600 hover:bg-green-700" onClick={handleSave}>
-                <Save className="w-5 h-5" />
-                Save
-              </Button>
-              <Button variant="outline" className="flex items-center gap-2" onClick={handleCancel}>
-                <X className="w-5 h-5" />
-                Cancel
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      {/* Hero Section */}
+      <div className="relative -mx-8 -mt-6 bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-12">
+        <div className="max-w-6xl mx-auto flex items-start gap-8">
+          {/* Profile Photo */}
+          <div className="flex-shrink-0">
+            <img
+              src={profile.profile_photo}
+              alt={profile.full_name}
+              className="w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg"
+            />
+          </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardBody>
-            <div className="flex items-center justify-between">
+          {/* Info */}
+          <div className="flex-1 text-white">
+            <h1 className="text-5xl font-bold">{profile.full_name}</h1>
+            <p className="text-blue-100 mt-2 text-lg">{profile.user_email}</p>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-6 mt-6">
               <div>
-                <p className="text-gray-600 text-sm">Rating</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2 flex items-center gap-1">
-                  <Star className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                <p className="text-blue-100 text-sm uppercase">Rating</p>
+                <p className="text-3xl font-bold mt-1 flex items-center gap-2">
+                  <Star className="w-6 h-6 fill-yellow-300 text-yellow-300" />
                   {profile.average_rating}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">({profile.total_reviews} reviews)</p>
+                <p className="text-blue-200 text-xs mt-1">({profile.total_reviews} reviews)</p>
+              </div>
+              <div>
+                <p className="text-blue-100 text-sm uppercase">Sessions</p>
+                <p className="text-3xl font-bold mt-1">{profile.total_sessions}</p>
+                <p className="text-blue-200 text-xs mt-1">Completed</p>
+              </div>
+              <div>
+                <p className="text-blue-100 text-sm uppercase">Experience</p>
+                <p className="text-3xl font-bold mt-1">{profile.experience_years}+</p>
+                <p className="text-blue-200 text-xs mt-1">Years</p>
               </div>
             </div>
-          </CardBody>
-        </Card>
 
-        <Card>
-          <CardBody>
-            <div>
-              <p className="text-gray-600 text-sm">Total Sessions</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{profile.total_sessions}</p>
-              <p className="text-xs text-gray-500 mt-1">Students trained</p>
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-8">
+              {!isEditMode ? (
+                <>
+                  <Button variant="primary" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold flex items-center gap-2">
+                    <Edit className="w-4 h-4" />
+                    Edit Profile
+                  </Button>
+                  <Link href="/trainer/profile/setup">
+                    <Button className="bg-blue-700 hover:bg-blue-800 text-white font-semibold flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Complete Profile
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center gap-2" onClick={handleSave}>
+                    <Save className="w-4 h-4" />
+                    Save
+                  </Button>
+                  <Button variant="outline" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold flex items-center gap-2" onClick={handleCancel}>
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </Button>
+                </>
+              )}
             </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <div>
-              <p className="text-gray-600 text-sm">Experience</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{profile.experience_years}+</p>
-              <p className="text-xs text-gray-500 mt-1">Years teaching</p>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <div>
-              <p className="text-gray-600 text-sm">Total Earnings</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">${profile.total_earnings.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">Lifetime earnings</p>
-            </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Profile Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Bio */}
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Profile Completion */}
+        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+          <CardBody className="flex justify-between items-center">
+            <div>
+              <p className="text-sm text-gray-600 font-semibold">Profile Completion</p>
+              <p className="text-gray-700 mt-1">Complete missing information to boost visibility</p>
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="relative w-24 h-24">
+                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="#e5e7eb"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth="8"
+                    strokeDasharray={`${profileCompletion * 2.83} 283`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-bold text-green-600">{profileCompletion}%</span>
+                </div>
+              </div>
+              <Link href="/trainer/profile/setup">
+                <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold">
+                  Complete Missing Info →
+                </Button>
+              </Link>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* About Me Section */}
         <Card>
           <CardHeader>
-            <h3 className="font-bold text-gray-900">About Me</h3>
+            <h2 className="text-2xl font-bold text-gray-900">👤 About Me</h2>
           </CardHeader>
           <CardBody>
             {isEditMode ? (
@@ -236,116 +264,133 @@ export default function TrainerProfilePage() {
                 rows={4}
               />
             ) : (
-              <p className="text-gray-700">{profile.bio}</p>
+              <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
             )}
           </CardBody>
         </Card>
 
-        {/* Expertise */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Award className="w-5 h-5" />
-              Expertise
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className="flex flex-wrap gap-2">
-              {profile.expertise.map((exp, idx) => (
-                <Badge key={idx} variant="primary">
-                  {exp}
-                </Badge>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
+        {/* Personal Information Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">💰 Personal Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardBody>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Hourly Rate</p>
+                <p className="text-4xl font-bold text-primary-600 mt-3">${profile.hourly_rate}</p>
+                <p className="text-xs text-gray-500 mt-2">per hour</p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Earnings</p>
+                <p className="text-4xl font-bold text-green-600 mt-3">${profile.total_earnings.toLocaleString()}</p>
+                <p className="text-xs text-gray-500 mt-2">lifetime</p>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Member Since</p>
+                <p className="text-2xl font-bold text-gray-900 mt-3">{new Date(profile.created_at).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-500 mt-2">joined</p>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
 
-        {/* Qualifications */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              Qualifications
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <ul className="space-y-2">
-              {profile.qualifications.map((qual, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-gray-700">
-                  <span className="text-primary-600">✓</span>
-                  {qual}
-                </li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
+        {/* Resume Section */}
+        {profile.resume_url && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardBody className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <span className="text-5xl">📄</span>
+                <div>
+                  <p className="font-bold text-gray-900">Resume</p>
+                  <p className="text-sm text-gray-600 mt-1">{profile.resume_url}</p>
+                </div>
+              </div>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download
+              </Button>
+            </CardBody>
+          </Card>
+        )}
 
-        {/* Certifications */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Award className="w-5 h-5" />
-              Certifications
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className="flex flex-wrap gap-2">
-              {profile.certifications?.map((cert, idx) => (
-                <Badge key={idx} variant="success">
-                  {cert}
-                </Badge>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
+        {/* Skills & Certifications Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">🏆 Skills & Expertise</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Expertise */}
+            <Card>
+              <CardHeader>
+                <h3 className="font-bold text-gray-900">Expertise</h3>
+              </CardHeader>
+              <CardBody>
+                <div className="flex flex-wrap gap-2">
+                  {profile.expertise.map((exp) => (
+                    <Badge key={exp} variant="primary" className="text-sm px-3 py-1">
+                      {exp}
+                    </Badge>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
 
-        {/* Languages */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Languages
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className="flex flex-wrap gap-2">
-              {profile.languages?.map((lang, idx) => (
-                <Badge key={idx} variant="purple">
-                  {lang}
-                </Badge>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
+            {/* Languages */}
+            <Card>
+              <CardHeader>
+                <h3 className="font-bold text-gray-900">Languages</h3>
+              </CardHeader>
+              <CardBody>
+                <div className="flex flex-wrap gap-2">
+                  {profile.languages?.map((lang) => (
+                    <Badge key={lang} variant="purple" className="text-sm px-3 py-1">
+                      {lang}
+                    </Badge>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
 
-        {/* Hourly Rate */}
-        <Card>
-          <CardHeader>
-            <h3 className="font-bold text-gray-900">Hourly Rate</h3>
-          </CardHeader>
-          <CardBody>
-            {isEditMode ? (
-              <Input
-                type="number"
-                value={editData.hourly_rate || ''}
-                onChange={(e) => setEditData({ ...editData, hourly_rate: parseFloat(e.target.value) })}
-                className="w-full"
-              />
-            ) : (
-              <p className="text-3xl font-bold text-primary-600">${profile.hourly_rate}/hour</p>
-            )}
-          </CardBody>
-        </Card>
+        {/* Qualifications Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">📜 Qualifications</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Degrees */}
+            <Card>
+              <CardHeader>
+                <h3 className="font-bold text-gray-900">Degrees & Certifications</h3>
+              </CardHeader>
+              <CardBody className="space-y-3">
+                {profile.qualifications.map((qual, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="text-primary-600 font-bold text-lg mt-0.5">✓</span>
+                    <span className="text-gray-700">{qual}</span>
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+
+            {/* Certified By */}
+            <Card>
+              <CardHeader>
+                <h3 className="font-bold text-gray-900">Certifications</h3>
+              </CardHeader>
+              <CardBody>
+                <div className="flex flex-wrap gap-2">
+                  {profile.certifications?.map((cert) => (
+                    <Badge key={cert} variant="success" className="text-sm px-3 py-1">
+                      {cert}
+                    </Badge>
+                  ))}
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </div>
       </div>
-
-      {/* Member Since */}
-      <Card>
-        <CardBody>
-          <p className="text-gray-600">
-            Member since <span className="font-semibold text-gray-900">{profile.created_at}</span>
-          </p>
-        </CardBody>
-      </Card>
     </div>
   );
 }

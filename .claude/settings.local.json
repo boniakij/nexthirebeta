@@ -108,7 +108,8 @@
       "Bash(curl -s http://localhost:3000/trainer/withdrawals)",
       "Bash(curl -s http://localhost:3000/trainer/payout-methods)",
       "Bash(npx tsc *)",
-      "Bash(curl -s http://localhost:3000/trainer/dashboard)"
+      "Bash(curl -s http://localhost:3000/trainer/dashboard)",
+      "Bash(curl -s http://localhost:3000/trainer/profile)"
     ]
   }
 }
