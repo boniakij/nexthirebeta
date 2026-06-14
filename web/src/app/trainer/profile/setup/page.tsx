@@ -17,6 +17,7 @@ type ProfileData = {
   phone_number: string;
   location: string;
   preferred_language: string;
+  resume_url: string;
   professional_title: string;
   current_company: string;
   current_designation: string;
@@ -100,6 +101,7 @@ export default function TrainerProfileSetup() {
     phone_number: '',
     location: '',
     preferred_language: 'English',
+    resume_url: '',
     professional_title: '',
     current_company: '',
     current_designation: '',
@@ -133,6 +135,17 @@ export default function TrainerProfileSetup() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({...prev, profile_photo_url: reader.result as string}));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({...prev, resume_url: reader.result as string}));
       };
       reader.readAsDataURL(file);
     }
@@ -314,6 +327,23 @@ export default function TrainerProfileSetup() {
                 >
                   {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
+              </FormField>
+
+              <FormField label="Resume / CV">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => document.getElementById('resume')?.click()}>
+                  {formData.resume_url ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-gray-900">✓ Resume uploaded</p>
+                      <p className="text-xs text-gray-600">Click to change resume</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 py-2">
+                      <p className="text-base font-semibold text-gray-900">Upload Your Resume</p>
+                      <p className="text-sm text-gray-600">PDF or DOC (Max 5MB)</p>
+                    </div>
+                  )}
+                  <input type="file" id="resume" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="hidden" />
+                </div>
               </FormField>
             </FormSection>
           </>
