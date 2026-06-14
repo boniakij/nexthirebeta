@@ -85,7 +85,11 @@
       "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/profile-full-sections.png\" \"http://localhost:3000/trainer/profile\")",
       "Bash(google-chrome --headless=new --window-size=1280,4000 --screenshot=\"/tmp/trainer-profile.png\" \"http://localhost:3000/trainer/profile\")",
       "Bash(google-chrome --headless=new --window-size=1280,4000 --screenshot=\"/tmp/profile-final.png\" \"http://localhost:3000/trainer/profile\")",
-      "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/setup-page.png\" \"http://localhost:3000/trainer/profile/setup\")"
+      "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/setup-page.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/setup-full.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/validation-error.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/setup-prepopulated.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/setup-full-view.png\" \"http://localhost:3000/trainer/profile/setup\")"
     ]
   }
 }
