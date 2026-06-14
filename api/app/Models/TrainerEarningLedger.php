@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TrainerEarningLedger extends Model
 {
+    protected $table = 'trainer_earning_ledger';
+
     protected $fillable = [
         'trainer_id', 'student_id', 'booking_id', 'interview_id', 'payment_id',
         'gross_amount', 'commission_amount', 'net_amount', 'currency', 'status', 'available_at',

@@ -12,7 +12,7 @@ class EarningService
 
     public function __construct(WalletService $walletService)
     {
-        $this->walletService = walletService;
+        $this->walletService = $walletService;
     }
 
     /**
