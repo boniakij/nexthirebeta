@@ -798,7 +798,13 @@ export default function TrainerProfilePage() {
                           <p className="font-semibold text-gray-900">{skill.skill_name}</p>
                           {skill.is_featured && <Badge variant="success" className="text-xs">⭐ Featured</Badge>}
                         </div>
-                        <p className="text-sm text-gray-600">{skill.skill_category} • <Badge variant="gray" className="text-xs inline">{skill.skill_level}</Badge> • {skill.years_experience} {skill.years_experience === 1 ? 'year' : 'years'}</p>
+                        <div className="text-sm text-gray-600 flex items-center gap-1">
+                          <span>{skill.skill_category}</span>
+                          <span>•</span>
+                          <Badge variant="gray" className="text-xs">{skill.skill_level}</Badge>
+                          <span>•</span>
+                          <span>{skill.years_experience} {skill.years_experience === 1 ? 'year' : 'years'}</span>
+                        </div>
                       </div>
                       <button onClick={() => removeSkill(skill.id)} className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-all">
                         <Trash2 className="w-5 h-5" />
