@@ -18,6 +18,7 @@ use App\Http\Controllers\V1\Admin\TrainerProfileAdminController;
 use App\Http\Controllers\V1\Trainer\WalletController;
 use App\Http\Controllers\V1\Trainer\WithdrawalController;
 use App\Http\Controllers\V1\Admin\CommissionSettingController;
+use App\Http\Controllers\V1\Admin\WithdrawalController as AdminWithdrawalController;
 
 Route::prefix('v1')->group(function () {
 
@@ -166,6 +167,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('admin/commission-settings/{setting}/activate', [CommissionSettingController::class, 'activate']);
             Route::patch('admin/commission-settings/{setting}/deactivate', [CommissionSettingController::class, 'deactivate']);
             Route::post('admin/commission-settings/calculate-preview', [CommissionSettingController::class, 'calculatePreview']);
+
+            // Withdrawal Routes
+            Route::get('admin/withdrawals', [AdminWithdrawalController::class, 'index']);
+            Route::get('admin/withdrawals/pending', [AdminWithdrawalController::class, 'pending']);
+            Route::get('admin/withdrawals/{withdrawal}', [AdminWithdrawalController::class, 'show']);
+            Route::patch('admin/withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve']);
+            Route::patch('admin/withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject']);
+            Route::patch('admin/withdrawals/{withdrawal}/mark-paid', [AdminWithdrawalController::class, 'markPaid']);
         });
     });
 });
