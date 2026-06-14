@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1',
   headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
 });
@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
             return Promise.reject(error);
           }
           const { data } = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/auth/refresh`,
+            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'}/auth/refresh`,
             { refresh_token: refreshToken }
           );
 
