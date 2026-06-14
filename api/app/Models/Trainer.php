@@ -80,4 +80,19 @@ class Trainer extends Model
     {
         return $this->hasMany(TrainerCertification::class);
     }
+
+    public function skills(): HasMany
+    {
+        return $this->hasMany(TrainerSkill::class);
+    }
+
+    public function educations(): HasMany
+    {
+        return $this->hasMany(TrainerEducation::class);
+    }
+
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(TrainerAchievement::class);
+    }
 }

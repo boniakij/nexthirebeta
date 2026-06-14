@@ -18,6 +18,9 @@ use App\Http\Controllers\V1\Admin\TrainerProfileAdminController;
 use App\Http\Controllers\V1\Trainer\WalletController;
 use App\Http\Controllers\V1\Trainer\WithdrawalController;
 use App\Http\Controllers\V1\Trainer\PaymentMethodController;
+use App\Http\Controllers\V1\Trainer\TrainerSkillController;
+use App\Http\Controllers\V1\Trainer\TrainerEducationController;
+use App\Http\Controllers\V1\Trainer\TrainerAchievementController;
 use App\Http\Controllers\V1\Admin\CommissionSettingController;
 use App\Http\Controllers\V1\Admin\WithdrawalController as AdminWithdrawalController;
 
@@ -123,6 +126,24 @@ Route::prefix('v1')->group(function () {
             Route::post('me/payout-methods', [PaymentMethodController::class, 'store']);
             Route::put('me/payout-methods/{id}', [PaymentMethodController::class, 'update']);
             Route::delete('me/payout-methods/{id}', [PaymentMethodController::class, 'destroy']);
+
+            // Skills Routes
+            Route::get('me/skills', [TrainerSkillController::class, 'index']);
+            Route::post('me/skills', [TrainerSkillController::class, 'store']);
+            Route::put('me/skills/{id}', [TrainerSkillController::class, 'update']);
+            Route::delete('me/skills/{id}', [TrainerSkillController::class, 'destroy']);
+
+            // Education Routes
+            Route::get('me/educations', [TrainerEducationController::class, 'index']);
+            Route::post('me/educations', [TrainerEducationController::class, 'store']);
+            Route::put('me/educations/{id}', [TrainerEducationController::class, 'update']);
+            Route::delete('me/educations/{id}', [TrainerEducationController::class, 'destroy']);
+
+            // Achievements Routes
+            Route::get('me/achievements', [TrainerAchievementController::class, 'index']);
+            Route::post('me/achievements', [TrainerAchievementController::class, 'store']);
+            Route::put('me/achievements/{id}', [TrainerAchievementController::class, 'update']);
+            Route::delete('me/achievements/{id}', [TrainerAchievementController::class, 'destroy']);
         });
 
         // Booking Routes
