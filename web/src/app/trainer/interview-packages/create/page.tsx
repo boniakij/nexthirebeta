@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Button, Input } from '@/components/ui';
 import { Save, X, AlertCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+import apiClient from '@/lib/api/client';
 
 const CATEGORIES = ['HR Interview', 'Technical Interview', 'CV Review', 'Career Counseling', 'Company Interview Prep'];
 const TARGET_LEVELS = ['Fresher', 'Junior', 'Mid-Level', 'Senior', 'Executive'];
@@ -172,25 +173,16 @@ export default function CreateInterviewPackagePage() {
         status: asDraft ? 'draft' : formData.status.toLowerCase(),
       };
 
-      const response = await fetch('/api/v1/trainers/interview-packages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const { data } = await apiClient.post('/trainers/interview-packages', payload);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (data.success) {
+        alert(`Package ${asDraft ? 'saved as draft' : 'published'} successfully!`);
+        window.location.href = '/trainer/interview-packages';
+      } else {
         throw new Error(data.message || 'Failed to create package');
       }
-
-      alert(`Package ${asDraft ? 'saved as draft' : 'published'} successfully!`);
-      window.location.href = '/trainer/interview-packages';
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create package');
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Failed to create package');
       setLoading(false);
     }
   };

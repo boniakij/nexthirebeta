@@ -22,7 +22,7 @@ import {
 
 const menuItems = [
   { id: 1, label: 'Dashboard', href: '/trainer/dashboard', icon: LayoutDashboard },
-  { id: 2, label: 'My Profile', href: '/trainer/profile/setup', icon: User },
+  { id: 2, label: 'My Profile', href: '/trainer/profile', icon: User },
   { id: 3, label: 'Packages', href: '/trainer/packages', icon: Package },
   { id: 4, label: 'Availability', href: '/trainer/availability', icon: Calendar },
   { id: 5, label: 'Sessions', href: '/trainer/sessions', icon: Video },

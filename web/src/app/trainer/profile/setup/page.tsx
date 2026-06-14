@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Button, Input } from '@/components/ui';
 import { Save, X, AlertCircle, ChevronRight, ChevronLeft, Upload, CheckCircle2 } from 'lucide-react';
+import apiClient from '@/lib/api/client';
 
 const INDUSTRIES = ['Tech', 'Finance', 'Healthcare', 'Education', 'HR', 'Marketing', 'Sales', 'FMCG'];
 const TRAINER_TYPES = ['HR Trainer', 'Technical Trainer', 'Career Coach', 'CV Reviewer', 'Interview Specialist'];
@@ -201,25 +202,16 @@ export default function TrainerProfileSetup() {
     setError('');
 
     try {
-      const response = await fetch('/api/v1/trainers/me/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      const { data } = await apiClient.post('/trainers/me/profile', formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (data.success) {
+        alert('Profile saved successfully!');
+        window.location.href = '/trainer/dashboard';
+      } else {
         throw new Error(data.message || 'Failed to save profile');
       }
-
-      alert('Profile saved successfully!');
-      window.location.href = '/trainer/dashboard';
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save profile');
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Failed to save profile');
       setLoading(false);
     }
   };

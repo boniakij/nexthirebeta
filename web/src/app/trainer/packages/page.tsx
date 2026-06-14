@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Badge, Button, Modal, Input, Spinner } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
@@ -319,17 +319,15 @@ function PackagesContent() {
 export default function PackagesPage() {
   return (
     <RoleGuard allowedRoles={['trainer']}>
-      <DashboardLayout>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center min-h-screen">
-              <Spinner size="lg" />
-            </div>
-          }
-        >
-          <PackagesContent />
-        </Suspense>
-      </DashboardLayout>
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-screen">
+            <Spinner size="lg" />
+          </div>
+        }
+      >
+        <PackagesContent />
+      </Suspense>
     </RoleGuard>
   );
 }

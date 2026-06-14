@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
+
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Card, CardBody, CardHeader, Badge, Input, Button, Spinner } from '@/components/ui';
 import { trainerApi } from '@/lib/api/trainer';
@@ -255,17 +255,15 @@ function EarningsContent() {
 export default function EarningsPage() {
   return (
     <RoleGuard allowedRoles={['trainer']}>
-      <DashboardLayout>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center min-h-screen">
-              <Spinner size="lg" />
-            </div>
-          }
-        >
-          <EarningsContent />
-        </Suspense>
-      </DashboardLayout>
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-screen">
+            <Spinner size="lg" />
+          </div>
+        }
+      >
+        <EarningsContent />
+      </Suspense>
     </RoleGuard>
   );
 }

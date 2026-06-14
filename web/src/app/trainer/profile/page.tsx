@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { Edit, Save, X, Download, Upload, FileText, Star, Users, TrendingUp, Award } from 'lucide-react';
+import { Edit, Save, X, Download, Upload, FileText, Star, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
 
 interface TrainerProfile {
   id: number;
@@ -106,10 +107,18 @@ export default function TrainerProfilePage() {
         </div>
         <div className="flex gap-2">
           {!isEditMode ? (
-            <Button variant="primary" className="flex items-center gap-2" onClick={handleEdit}>
-              <Edit className="w-5 h-5" />
-              Edit Profile
-            </Button>
+            <>
+              <Link href="/trainer/profile/setup">
+                <Button variant="primary" className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Complete My Profile
+                </Button>
+              </Link>
+              <Button variant="outline" className="flex items-center gap-2" onClick={handleEdit}>
+                <Edit className="w-5 h-5" />
+                Edit Profile
+              </Button>
+            </>
           ) : (
             <>
               <Button variant="primary" className="flex items-center gap-2 bg-green-600 hover:bg-green-700" onClick={handleSave}>
