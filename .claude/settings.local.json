@@ -109,7 +109,8 @@
       "Bash(curl -s http://localhost:3000/trainer/payout-methods)",
       "Bash(npx tsc *)",
       "Bash(curl -s http://localhost:3000/trainer/dashboard)",
-      "Bash(curl -s http://localhost:3000/trainer/profile)"
+      "Bash(curl -s http://localhost:3000/trainer/profile)",
+      "Bash(curl -s -X POST http://localhost:8000/api/v1/trainers/me/profile/photo -H 'Authorization: Bearer invalid_token' -F photo=@/dev/null)"
     ]
   }
 }

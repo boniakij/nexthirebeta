@@ -153,9 +153,27 @@ export default function TrainerProfilePage() {
         body: formData,
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type');
+      let data;
 
-      if (data?.success) {
+      try {
+        if (contentType?.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          console.error('Non-JSON response:', text.substring(0, 200));
+          setError('Server error: Invalid response format. Please check your authentication.');
+          setImagePreview(profile?.profile_photo || null);
+          return;
+        }
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        setError('Failed to parse server response. Please try again.');
+        setImagePreview(profile?.profile_photo || null);
+        return;
+      }
+
+      if (response.ok && data?.success) {
         // Update profile with returned photo URL
         const photoUrl = data.photo_url || data.data?.profile_photo;
         if (profile) {
@@ -163,13 +181,15 @@ export default function TrainerProfilePage() {
         }
         setEditData({ ...editData, profile_photo: photoUrl });
       } else {
-        setError(data?.message || 'Failed to upload image');
+        const errorMsg = data?.message || 'Failed to upload image';
+        setError(errorMsg);
+        console.error('Upload failed:', data);
         // Reset preview on error
         setImagePreview(profile?.profile_photo || null);
       }
     } catch (err: any) {
       console.error('Upload error:', err);
-      setError(err.message || 'Failed to upload image. Please try again.');
+      setError(err.message || 'Network error. Please check your connection and try again.');
       // Reset preview on error
       setImagePreview(profile?.profile_photo || null);
     } finally {
