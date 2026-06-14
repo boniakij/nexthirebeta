@@ -103,14 +103,176 @@ export default function AvailabilityPage() {
 
       {!loading && activeTab === 'weekly' && (
         <Card className="shadow-lg border-0">
+          <CardHeader className="flex justify-between items-center border-b pb-4">
+            <h2 className="text-xl font-bold">Weekly Schedule</h2>
+            {!editingWeekly && (
+              <Button onClick={() => setEditingWeekly(true)} className="bg-blue-600 hover:bg-blue-700">
+                Edit Schedule
+              </Button>
+            )}
+          </CardHeader>
           <CardBody className="space-y-4">
             <p className="text-gray-600 mb-4">Set your regular weekly availability hours.</p>
-            {days.map((day, idx) => (
-              <div key={day} className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold">{day}</h3>
-                <p className="text-sm text-gray-500 mt-2">Configure coming soon</p>
+            {days.map((day, idx) => {
+              const schedule = weeklySchedule.find((s: any) => s.day_of_week === idx);
+              return (
+                <div key={day} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-gray-900">{day}</h3>
+                    {editingWeekly ? (
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={schedule?.is_available || false}
+                          onChange={(e) => {
+                            const updated = weeklySchedule.filter((s: any) => s.day_of_week !== idx);
+                            if (e.target.checked) {
+                              updated.push({
+                                day_of_week: idx,
+                                is_available: true,
+                                start_time: schedule?.start_time || '09:00',
+                                end_time: schedule?.end_time || '17:00',
+                                slot_duration_minutes: schedule?.slot_duration_minutes || 60,
+                                buffer_minutes: schedule?.buffer_minutes || 15,
+                              });
+                            }
+                            setWeeklySchedule(updated);
+                          }}
+                          className="w-4 h-4 rounded"
+                        />
+                        <span className="text-sm font-medium">Available</span>
+                      </label>
+                    ) : (
+                      <Badge variant={schedule?.is_available ? 'success' : 'gray'}>
+                        {schedule?.is_available ? 'Available' : 'Not Available'}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {schedule?.is_available && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t border-blue-200">
+                      {editingWeekly ? (
+                        <>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Start</label>
+                            <input
+                              type="time"
+                              value={schedule?.start_time || '09:00'}
+                              onChange={(e) => {
+                                const updated = weeklySchedule.map((s: any) =>
+                                  s.day_of_week === idx ? { ...s, start_time: e.target.value } : s
+                                );
+                                setWeeklySchedule(updated);
+                              }}
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">End</label>
+                            <input
+                              type="time"
+                              value={schedule?.end_time || '17:00'}
+                              onChange={(e) => {
+                                const updated = weeklySchedule.map((s: any) =>
+                                  s.day_of_week === idx ? { ...s, end_time: e.target.value } : s
+                                );
+                                setWeeklySchedule(updated);
+                              }}
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Slot (min)</label>
+                            <input
+                              type="number"
+                              value={schedule?.slot_duration_minutes || 60}
+                              onChange={(e) => {
+                                const updated = weeklySchedule.map((s: any) =>
+                                  s.day_of_week === idx ? { ...s, slot_duration_minutes: parseInt(e.target.value) } : s
+                                );
+                                setWeeklySchedule(updated);
+                              }}
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                              min="15"
+                              max="480"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Buffer (min)</label>
+                            <input
+                              type="number"
+                              value={schedule?.buffer_minutes || 15}
+                              onChange={(e) => {
+                                const updated = weeklySchedule.map((s: any) =>
+                                  s.day_of_week === idx ? { ...s, buffer_minutes: parseInt(e.target.value) } : s
+                                );
+                                setWeeklySchedule(updated);
+                              }}
+                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                              min="0"
+                              max="60"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <p className="text-xs text-gray-600">Start</p>
+                            <p className="text-sm font-medium text-gray-900">{schedule?.start_time}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">End</p>
+                            <p className="text-sm font-medium text-gray-900">{schedule?.end_time}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Slot</p>
+                            <p className="text-sm font-medium text-gray-900">{schedule?.slot_duration_minutes}m</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Buffer</p>
+                            <p className="text-sm font-medium text-gray-900">{schedule?.buffer_minutes}m</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {editingWeekly && (
+              <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                <Button
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      const response = await apiClient.put('/trainers/me/availability/weekly-schedule', {
+                        schedule: weeklySchedule,
+                      });
+                      if (response.data?.success) {
+                        setEditingWeekly(false);
+                        setError('');
+                        alert('Weekly schedule updated!');
+                      }
+                    } catch (err: any) {
+                      setError(err.response?.data?.message || 'Failed to save schedule');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700 flex-1"
+                >
+                  Save Schedule
+                </Button>
+                <Button
+                  onClick={() => setEditingWeekly(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
               </div>
-            ))}
+            )}
           </CardBody>
         </Card>
       )}
