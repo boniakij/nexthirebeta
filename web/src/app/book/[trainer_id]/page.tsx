@@ -101,8 +101,50 @@ export default function BookingPage() {
   };
 
   const handleConfirmBooking = async () => {
-    // This would call the booking API
-    router.push('/booking/confirmed');
+    try {
+      if (!selectedPackage || !selectedDate || !selectedTime) {
+        alert('Please select a package, date, and time');
+        return;
+      }
+
+      const slot = availabilitySlots.find(
+        (s) => s.date === selectedDate && formatTimeSlot(s.start_time) === selectedTime
+      );
+
+      if (!slot) {
+        alert('Selected slot is no longer available. Please select another slot.');
+        return;
+      }
+
+      setLoading(true);
+
+      const bookingRes = await bookingApi.create({
+        package_id: selectedPackage.id,
+        availability_id: slot.id,
+      });
+
+      if (bookingRes.data?.success) {
+        const interviewId = bookingRes.data.data.interview_id;
+
+        const paymentRes = await paymentApi.initiate({
+          interview_id: interviewId,
+          gateway: paymentMethod,
+        });
+
+        if (paymentRes.data?.success && paymentRes.data.data.payment_url) {
+          router.push(paymentRes.data.data.payment_url);
+        } else {
+          alert('Failed to initiate payment. Please try again.');
+        }
+      } else {
+        alert(bookingRes.data?.message || 'Failed to create booking.');
+      }
+    } catch (error: any) {
+      console.error('Booking failed:', error);
+      alert(error.response?.data?.message || 'Booking process failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const paymentMethods = [
@@ -212,28 +254,40 @@ export default function BookingPage() {
                       <input
                         type="date"
                         value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600 mb-6"
+                        onChange={(e) => {
+                          setSelectedDate(e.target.value);
+                          setSelectedTime('');
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600 mb-6 text-gray-800 bg-white"
                       />
 
                       <label className="block text-sm font-semibold text-gray-900 mb-3">
                         Available Time Slots
                       </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {availableTimeSlots.map((time) => (
-                          <button
-                            key={time}
-                            onClick={() => setSelectedTime(time)}
-                            className={`p-3 border-2 rounded-btn transition ${
-                              selectedTime === time
-                                ? 'border-primary-600 bg-primary-50 text-primary-600 font-semibold'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            {time}
-                          </button>
-                        ))}
-                      </div>
+                      {availabilitySlots.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {availabilitySlots.map((slot) => {
+                            const time = formatTimeSlot(slot.start_time);
+                            return (
+                              <button
+                                key={slot.id}
+                                onClick={() => setSelectedTime(time)}
+                                className={`p-3 border-2 rounded-btn transition text-sm ${
+                                  selectedTime === time
+                                    ? 'border-primary-600 bg-primary-50 text-primary-600 font-semibold'
+                                    : 'border-gray-200 hover:border-gray-300 text-gray-700 bg-white'
+                                }`}
+                              >
+                                {time}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="p-6 text-center border-2 border-dashed border-gray-200 rounded-btn text-gray-500 bg-white">
+                          No available slots on this day. Please select another date.
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -325,19 +379,19 @@ export default function BookingPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal</span>
+                        <span className="text-gray-600">Package Price</span>
                         <span className="font-semibold text-gray-900">৳{selectedPackage.price}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Commission</span>
-                        <span className="font-semibold text-gray-900">-৳{Math.round(selectedPackage.price * 0.1)}</span>
+                        <span className="text-gray-600">Service Fee</span>
+                        <span className="font-semibold text-gray-900">৳0</span>
                       </div>
                       <div className="border-t border-gray-200 pt-2 flex justify-between">
-                        <span className="font-bold text-gray-900">Total</span>
+                        <span className="font-bold text-gray-900">Total to Pay</span>
                         <span className="font-bold text-primary-600 text-lg">
-                          ৳{Math.round(selectedPackage.price * 0.9)}
+                          ৳{selectedPackage.price}
                         </span>
                       </div>
                     </div>

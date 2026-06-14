@@ -12,19 +12,33 @@ class Trainer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'full_name', 'bio', 'expertise_domains', 'years_experience',
-        'certifications', 'company_experience', 'hourly_rate', 'average_rating',
-        'total_reviews', 'total_sessions', 'is_approved', 'approved_at',
-        'payout_info', 'country_code',
+        'user_id', 'full_name', 'display_name', 'profile_photo_url', 'gender', 'date_of_birth',
+        'phone_number', 'location', 'time_zone', 'preferred_language', 'professional_title',
+        'current_company', 'current_designation', 'industry', 'trainer_type', 'headline', 'bio',
+        'booking_value_statement', 'expertise_domains', 'target_student_levels', 'preferred_session_modes',
+        'years_experience', 'highest_degree', 'institution_name', 'graduation_year', 'field_of_study',
+        'languages', 'social_links', 'profile_status', 'is_available_for_booking', 'is_featured',
+        'accepting_new_students', 'response_time', 'cancellation_policy', 'refund_policy',
+        'admin_review_status', 'admin_rejection_reason', 'verified_at', 'profile_submitted_at',
+        'hourly_rate', 'average_rating', 'total_reviews', 'total_sessions', 'is_approved',
+        'approved_at', 'payout_info', 'country_code',
     ];
 
     protected $casts = [
         'expertise_domains' => 'array',
-        'certifications' => 'array',
-        'company_experience' => 'array',
+        'target_student_levels' => 'array',
+        'preferred_session_modes' => 'array',
+        'languages' => 'array',
+        'social_links' => 'array',
         'payout_info' => 'array',
+        'date_of_birth' => 'date',
+        'verified_at' => 'datetime',
+        'profile_submitted_at' => 'datetime',
         'approved_at' => 'datetime',
         'is_approved' => 'boolean',
+        'is_available_for_booking' => 'boolean',
+        'is_featured' => 'boolean',
+        'accepting_new_students' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -55,5 +69,15 @@ class Trainer extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function experiences(): HasMany
+    {
+        return $this->hasMany(TrainerExperience::class);
+    }
+
+    public function certifications(): HasMany
+    {
+        return $this->hasMany(TrainerCertification::class);
     }
 }

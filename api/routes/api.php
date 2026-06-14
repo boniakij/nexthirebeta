@@ -6,6 +6,7 @@ use App\Http\Controllers\V1\Student\StudentController;
 use App\Http\Controllers\V1\Company\CompanyController;
 use App\Http\Controllers\V1\Trainer\TrainerController;
 use App\Http\Controllers\V1\Trainer\AvailabilityController;
+use App\Http\Controllers\V1\Trainer\TrainerProfileController;
 use App\Http\Controllers\V1\Booking\BookingController;
 use App\Http\Controllers\V1\Payment\PaymentController;
 use App\Http\Controllers\V1\Interview\InterviewController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\V1\Evaluation\EvaluationController;
 use App\Http\Controllers\V1\Gamification\BadgeController;
 use App\Http\Controllers\V1\Gamification\LeaderboardController;
 use App\Http\Controllers\V1\Gamification\XPController;
+use App\Http\Controllers\V1\Admin\TrainerProfileAdminController;
 
 Route::prefix('v1')->group(function () {
 
@@ -37,6 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::get('trainers', [TrainerController::class, 'index']);
     Route::get('trainers/{id}', [TrainerController::class, 'show']);
     Route::get('trainers/{id}/availability', [AvailabilityController::class, 'getAvailability']);
+    Route::get('trainers/{trainerId}/profile', [TrainerProfileController::class, 'getPublicProfile']);
 
     // Public Badges and Leaderboards
     Route::get('badges', [BadgeController::class, 'index']);
@@ -88,6 +91,22 @@ Route::prefix('v1')->group(function () {
             Route::get('me/sessions', [TrainerController::class, 'sessions']);
             Route::post('me/availability', [AvailabilityController::class, 'setAvailability']);
             Route::post('me/evaluations/{interview_id}', [EvaluationController::class, 'store']);
+
+            // Trainer Profile Routes
+            Route::get('me/profile', [TrainerProfileController::class, 'getMyProfile']);
+            Route::post('me/profile', [TrainerProfileController::class, 'updateProfile']);
+            Route::post('me/profile/photo', [TrainerProfileController::class, 'uploadPhoto']);
+            Route::post('me/profile/submit-review', [TrainerProfileController::class, 'submitForReview']);
+
+            // Experience Routes
+            Route::post('me/profile/experiences', [TrainerProfileController::class, 'addExperience']);
+            Route::put('me/profile/experiences/{id}', [TrainerProfileController::class, 'updateExperience']);
+            Route::delete('me/profile/experiences/{id}', [TrainerProfileController::class, 'deleteExperience']);
+
+            // Certification Routes
+            Route::post('me/profile/certifications', [TrainerProfileController::class, 'addCertification']);
+            Route::put('me/profile/certifications/{id}', [TrainerProfileController::class, 'updateCertification']);
+            Route::delete('me/profile/certifications/{id}', [TrainerProfileController::class, 'deleteCertification']);
         });
 
         // Booking Routes
@@ -122,6 +141,15 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('xp')->group(function () {
             Route::get('progress', [XPController::class, 'myProgress']);
+        });
+
+        // Admin Routes (protected by admin middleware)
+        Route::middleware('admin')->group(function () {
+            Route::get('admin/trainers/pending-review', [TrainerProfileAdminController::class, 'getPendingReviews']);
+            Route::patch('admin/trainers/{trainerId}/approve', [TrainerProfileAdminController::class, 'approveProfile']);
+            Route::patch('admin/trainers/{trainerId}/reject', [TrainerProfileAdminController::class, 'rejectProfile']);
+            Route::patch('admin/trainers/{trainerId}/suspend', [TrainerProfileAdminController::class, 'suspendProfile']);
+            Route::get('admin/trainers', [TrainerProfileAdminController::class, 'listTrainerProfiles']);
         });
     });
 });

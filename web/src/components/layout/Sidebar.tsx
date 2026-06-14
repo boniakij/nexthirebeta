@@ -40,6 +40,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: 'Users', href: '/admin/users', icon: '👥' },
     { label: 'Trainers', href: '/admin/trainers', icon: '🎓' },
     { label: 'Companies', href: '/admin/companies', icon: '🏢' },
+    { label: 'Payment', href: '/admin/settings/payment', icon: '💳' },
     { label: 'Reports', href: '/admin/reports', icon: '📈' },
   ],
 };

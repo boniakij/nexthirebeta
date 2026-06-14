@@ -178,12 +178,16 @@ class PaymentService
      */
     public function verifySSLCommerz(array $payload): bool
     {
+        $settingsService = app(\App\Services\SettingsService::class);
+        $storePassword = $settingsService->get('payment.sslcommerz.store_password') 
+            ?: config('services.sslcommerz.store_password');
+
         // Implement MD5 hash validation
         $hashString = implode(',', [
             $payload['store_id'] ?? '',
             $payload['status'] ?? '',
             $payload['amount'] ?? '',
-            config('services.sslcommerz.store_password'),
+            $storePassword,
         ]);
 
         $expectedHash = md5($hashString);
@@ -195,8 +199,12 @@ class PaymentService
      */
     public function verifyBKash(array $payload): bool
     {
+        $settingsService = app(\App\Services\SettingsService::class);
+        $webhookToken = $settingsService->get('payment.bkash.webhook_token')
+            ?: config('services.bkash.webhook_token');
+
         // Implement Bearer token validation
         $bearerToken = request()->bearerToken();
-        return $bearerToken === config('services.bkash.webhook_token');
+        return $bearerToken === $webhookToken;
     }
 }

@@ -14,9 +14,7 @@ export default function PackageDetailPage() {
 
   const [pkg, setPkg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     const fetchPackage = async () => {
@@ -37,34 +35,15 @@ export default function PackageDetailPage() {
     }
   }, [packageId]);
 
-  const handleBooking = async () => {
-    try {
-      setBookingLoading(true);
-      const token = localStorage.getItem('auth_token');
+  const handleBooking = () => {
+    const token = localStorage.getItem('auth_token');
 
-      if (!token) {
-        window.location.href = '/auth/login?redirect=/packages/' + packageId;
-        return;
-      }
-
-      const res = await axios.post(
-        `/api/interview-bookings`,
-        { package_id: packageId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data?.success) {
-        setBookingSuccess(true);
-        setTimeout(() => {
-          window.location.href = '/student/profile';
-        }, 2000);
-      }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Booking failed. Please try again.';
-      setError(message);
-    } finally {
-      setBookingLoading(false);
+    if (!token) {
+      window.location.href = '/auth/login?redirect=/booking/' + packageId;
+      return;
     }
+
+    window.location.href = '/booking/' + packageId;
   };
 
   if (loading) {
@@ -187,25 +166,12 @@ export default function PackageDetailPage() {
                   <p className="text-sm text-gray-600 mt-2">per {pkg.session_type === 'one_to_one' ? 'session' : 'month'}</p>
                 </div>
 
-                {bookingSuccess && (
-                  <div className="w-full mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm font-semibold text-green-700">✓ Booking successful! Redirecting...</p>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="w-full mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                )}
-
                 <Button
                   size="lg"
                   className="w-full mb-4"
                   onClick={handleBooking}
-                  disabled={bookingLoading || bookingSuccess}
                 >
-                  {bookingLoading ? 'Processing...' : bookingSuccess ? 'Booked!' : 'Book Now'}
+                  Book Now
                 </Button>
 
                 <Button variant="outline" size="lg" className="w-full mb-6">

@@ -3,70 +3,111 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\SettingsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AdminSettingsController extends Controller
 {
+    protected SettingsService $settingsService;
+
+    public function __construct(SettingsService $settingsService)
+    {
+        $this->settingsService = $settingsService;
+    }
+
     /**
-     * GET /api/admin/settingscontroller
+     * GET /api/admin/settings
      */
     public function index(Request $request): JsonResponse
     {
-        // TODO: Implement listing logic
         return response()->json([
             'success' => true,
-            'data' => [],
-            'message' => 'AdminSettingsController index not yet implemented',
+            'data' => $this->settingsService->getSettings(),
+            'message' => 'Settings retrieved successfully',
         ]);
     }
 
     /**
-     * POST /api/admin/settingscontroller
+     * PUT /api/admin/settings
      */
-    public function store(Request $request): JsonResponse
+    public function update(Request $request): JsonResponse
     {
-        // TODO: Implement create logic
-        return response()->json([
-            'success' => true,
-            'message' => 'AdminSettingsController store not yet implemented',
-        ], 201);
-    }
+        $validated = $request->validate([
+            'payment' => 'sometimes|array',
+            'video' => 'sometimes|array',
+            'communication' => 'sometimes|array',
+        ]);
 
-    /**
-     * GET /api/admin/settingscontroller/:id
-     */
-    public function show(int $id): JsonResponse
-    {
-        // TODO: Implement show logic
+        $updated = $this->settingsService->update($validated);
+
         return response()->json([
             'success' => true,
-            'data' => [],
-            'message' => 'AdminSettingsController show not yet implemented',
+            'data' => $updated,
+            'message' => 'Settings updated successfully',
         ]);
     }
 
     /**
-     * PUT /api/admin/settingscontroller/:id
+     * PUT /api/admin/settings/payment
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function updatePayment(Request $request): JsonResponse
     {
-        // TODO: Implement update logic
+        $validated = $request->validate([
+            'sslcommerz' => 'sometimes|array',
+            'bkash' => 'sometimes|array',
+            'nagad' => 'sometimes|array',
+            'stripe' => 'sometimes|array',
+            'paypal' => 'sometimes|array',
+            'bank' => 'sometimes|array',
+        ]);
+
+        $updated = $this->settingsService->update(['payment' => $validated]);
+
         return response()->json([
             'success' => true,
-            'message' => 'AdminSettingsController update not yet implemented',
+            'data' => $updated['payment'],
+            'message' => 'Payment gateway settings updated successfully',
         ]);
     }
 
     /**
-     * DELETE /api/admin/settingscontroller/:id
+     * PUT /api/admin/settings/video
      */
-    public function destroy(int $id): JsonResponse
+    public function updateVideo(Request $request): JsonResponse
     {
-        // TODO: Implement delete logic
+        $validated = $request->validate([
+            'provider' => 'required|string',
+            'app_id' => 'nullable|string',
+            'app_certificate' => 'nullable|string',
+        ]);
+
+        $updated = $this->settingsService->update(['video' => $validated]);
+
         return response()->json([
             'success' => true,
-            'message' => 'AdminSettingsController destroy not yet implemented',
+            'data' => $updated['video'],
+            'message' => 'Video settings updated successfully',
+        ]);
+    }
+
+    /**
+     * PUT /api/admin/settings/communication
+     */
+    public function updateCommunication(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email_notifications' => 'required|boolean',
+            'sms_notifications' => 'required|boolean',
+            'push_notifications' => 'required|boolean',
+        ]);
+
+        $updated = $this->settingsService->update(['communication' => $validated]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $updated['communication'],
+            'message' => 'Communication settings updated successfully',
         ]);
     }
 }
