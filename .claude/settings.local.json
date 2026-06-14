@@ -77,7 +77,14 @@
       "Bash(google-chrome --headless=new --window-size=1400,900 --screenshot=\"/tmp/trainer-panel.png\" \"http://localhost:3000/trainer/dashboard\")",
       "Bash(git checkout *)",
       "Bash(google-chrome --headless=new --window-size=1280,1400 --screenshot=\"/tmp/test-profile-setup.png\" \"http://localhost:3000/trainer/profile/setup\")",
-      "Bash(google-chrome --headless=new --window-size=1280,1200 --screenshot=\"/tmp/test-my-profile.png\" \"http://localhost:3000/trainer/profile\")"
+      "Bash(google-chrome --headless=new --window-size=1280,1200 --screenshot=\"/tmp/test-my-profile.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,1400 --screenshot=\"/tmp/final-profile.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2000 --screenshot=\"/tmp/profile-full.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,3000 --screenshot=\"/tmp/profile-sections.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(curl -s \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/profile-full-sections.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,4000 --screenshot=\"/tmp/trainer-profile.png\" \"http://localhost:3000/trainer/profile\")",
+      "Bash(google-chrome --headless=new --window-size=1280,4000 --screenshot=\"/tmp/profile-final.png\" \"http://localhost:3000/trainer/profile\")"
     ]
   }
 }

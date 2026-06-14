@@ -46,21 +46,15 @@ const mockTrainerProfile: TrainerProfile = {
 };
 
 export default function TrainerProfilePage() {
-  const [profile, setProfile] = useState<TrainerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<TrainerProfile | null>(mockTrainerProfile);
+  const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editData, setEditData] = useState<Partial<TrainerProfile>>({});
+  const [editData, setEditData] = useState<Partial<TrainerProfile>>(mockTrainerProfile);
 
   useEffect(() => {
     // TODO: Replace with actual API call
     // const { data } = await trainerApi.getProfile();
-
-    // Mock data
-    setTimeout(() => {
-      setProfile(mockTrainerProfile);
-      setEditData(mockTrainerProfile);
-      setLoading(false);
-    }, 500);
+    // For now using mock data loaded from initial state
   }, []);
 
   const handleEdit = () => {
