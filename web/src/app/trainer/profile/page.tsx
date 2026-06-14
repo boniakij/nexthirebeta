@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
-import { Edit, Save, X, Star, Users, Award, CheckCircle, Download, Upload, Camera } from 'lucide-react';
+import { Edit, Save, X, Star, Users, Award, CheckCircle, Download, Upload, Camera, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/lib/api/client';
 
@@ -55,6 +55,32 @@ export default function TrainerProfilePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(mockTrainerProfile.profile_photo || null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Skills, Experience, Education, Certifications, Projects
+  const [skills, setSkills] = useState<string[]>(mockTrainerProfile.expertise || []);
+  const [newSkill, setNewSkill] = useState('');
+
+  const [experience, setExperience] = useState<any[]>([
+    { id: 1, title: 'Senior IELTS Trainer', company: 'Language Academy', years: '5 years' },
+  ]);
+  const [newExperience, setNewExperience] = useState({ title: '', company: '', years: '' });
+
+  const [education, setEducation] = useState<any[]>([
+    { id: 1, degree: 'Bachelor in English Literature', institution: 'University of London' },
+  ]);
+  const [newEducation, setNewEducation] = useState({ degree: '', institution: '' });
+
+  const [certifications, setCertifications] = useState<any[]>([
+    { id: 1, name: 'IELTS Certified' },
+    { id: 2, name: 'TEFL Certified' },
+    { id: 3, name: 'CELTA Certified' },
+  ]);
+  const [newCertification, setNewCertification] = useState('');
+
+  const [projects, setProjects] = useState<any[]>([
+    { id: 1, title: 'Developed IELTS Learning Platform', description: 'Created interactive platform with 1000+ students' },
+  ]);
+  const [newProject, setNewProject] = useState({ title: '', description: '' });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -111,6 +137,66 @@ export default function TrainerProfilePage() {
   const handleCancel = () => {
     setIsEditMode(false);
     setEditData(profile || {});
+  };
+
+  // Skill handlers
+  const addSkill = () => {
+    if (newSkill.trim()) {
+      setSkills([...skills, newSkill]);
+      setNewSkill('');
+    }
+  };
+
+  const removeSkill = (index: number) => {
+    setSkills(skills.filter((_, i) => i !== index));
+  };
+
+  // Experience handlers
+  const addExperience = () => {
+    if (newExperience.title && newExperience.company) {
+      setExperience([...experience, { ...newExperience, id: Date.now() }]);
+      setNewExperience({ title: '', company: '', years: '' });
+    }
+  };
+
+  const removeExperience = (id: number) => {
+    setExperience(experience.filter((item) => item.id !== id));
+  };
+
+  // Education handlers
+  const addEducation = () => {
+    if (newEducation.degree && newEducation.institution) {
+      setEducation([...education, { ...newEducation, id: Date.now() }]);
+      setNewEducation({ degree: '', institution: '' });
+    }
+  };
+
+  const removeEducation = (id: number) => {
+    setEducation(education.filter((item) => item.id !== id));
+  };
+
+  // Certification handlers
+  const addCertification = () => {
+    if (newCertification.trim()) {
+      setCertifications([...certifications, { id: Date.now(), name: newCertification }]);
+      setNewCertification('');
+    }
+  };
+
+  const removeCertification = (id: number) => {
+    setCertifications(certifications.filter((item) => item.id !== id));
+  };
+
+  // Project handlers
+  const addProject = () => {
+    if (newProject.title && newProject.description) {
+      setProjects([...projects, { ...newProject, id: Date.now() }]);
+      setNewProject({ title: '', description: '' });
+    }
+  };
+
+  const removeProject = (id: number) => {
+    setProjects(projects.filter((item) => item.id !== id));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -512,6 +598,144 @@ export default function TrainerProfilePage() {
               </CardBody>
             </Card>
           </div>
+        </div>
+      </div>
+
+      {/* Skills Section */}
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">💡 Skills</h2>
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  placeholder="Add a skill"
+                  onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+                />
+                <Button onClick={addSkill} className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill, idx) => (
+                  <Badge key={idx} variant="primary">
+                    {skill}
+                    <button onClick={() => removeSkill(idx)} className="ml-1">✕</button>
+                  </Badge>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Work Experience */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">💼 Work Experience</h2>
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <Input placeholder="Title" value={newExperience.title} onChange={(e) => setNewExperience({ ...newExperience, title: e.target.value })} />
+                <Input placeholder="Company" value={newExperience.company} onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })} />
+                <Input placeholder="Years" value={newExperience.years} onChange={(e) => setNewExperience({ ...newExperience, years: e.target.value })} />
+                <Button onClick={addExperience} className="bg-blue-600 col-span-1 md:col-span-3">
+                  <Plus className="w-4 h-4 mr-2" /> Add
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {experience.map((exp) => (
+                  <div key={exp.id} className="p-3 bg-gray-50 rounded flex justify-between">
+                    <div>
+                      <p className="font-semibold text-sm">{exp.title}</p>
+                      <p className="text-xs text-gray-600">{exp.company} • {exp.years}</p>
+                    </div>
+                    <button onClick={() => removeExperience(exp.id)}><Trash2 className="w-4 h-4 text-red-600" /></button>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Education */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">🎓 Education</h2>
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <Input placeholder="Degree" value={newEducation.degree} onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })} />
+                <Input placeholder="Institution" value={newEducation.institution} onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })} />
+                <Button onClick={addEducation} className="bg-blue-600 col-span-1 md:col-span-2">
+                  <Plus className="w-4 h-4 mr-2" /> Add
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {education.map((edu) => (
+                  <div key={edu.id} className="p-3 bg-gray-50 rounded flex justify-between">
+                    <div>
+                      <p className="font-semibold text-sm">{edu.degree}</p>
+                      <p className="text-xs text-gray-600">{edu.institution}</p>
+                    </div>
+                    <button onClick={() => removeEducation(edu.id)}><Trash2 className="w-4 h-4 text-red-600" /></button>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Certifications */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">🏅 Additional Certifications</h2>
+          <Card>
+            <CardBody className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newCertification}
+                  onChange={(e) => setNewCertification(e.target.value)}
+                  placeholder="Add certification"
+                  onKeyPress={(e) => e.key === 'Enter' && addCertification()}
+                />
+                <Button onClick={addCertification} className="bg-blue-600">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {certifications.map((cert) => (
+                  <Badge key={cert.id} variant="success">
+                    {cert.name}
+                    <button onClick={() => removeCertification(cert.id)} className="ml-1">✕</button>
+                  </Badge>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Projects */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold flex items-center gap-2">🚀 Projects & Achievements</h2>
+          <Card>
+            <CardBody className="space-y-4">
+              <Input placeholder="Project title" value={newProject.title} onChange={(e) => setNewProject({ ...newProject, title: e.target.value })} />
+              <textarea placeholder="Description" value={newProject.description} onChange={(e) => setNewProject({ ...newProject, description: e.target.value })} className="w-full p-2 border rounded" rows={3} />
+              <Button onClick={addProject} className="bg-blue-600 w-full">
+                <Plus className="w-4 h-4 mr-2" /> Add Project
+              </Button>
+              <div className="space-y-2">
+                {projects.map((proj) => (
+                  <div key={proj.id} className="p-3 bg-gray-50 rounded">
+                    <div className="flex justify-between">
+                      <p className="font-semibold text-sm">{proj.title}</p>
+                      <button onClick={() => removeProject(proj.id)}><Trash2 className="w-4 h-4 text-red-600" /></button>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">{proj.description}</p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
         </div>
       </div>
     </div>
