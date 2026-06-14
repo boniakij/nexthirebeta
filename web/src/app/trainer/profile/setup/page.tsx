@@ -204,23 +204,29 @@ export default function TrainerProfileSetup() {
     setError('');
 
     try {
-      const { data } = await apiClient.post('/trainers/me/profile', formData);
+      const response = await apiClient.post('/trainers/me/profile', formData);
 
-      if (data.success) {
+      if (response.data?.success) {
         if (completeProfile) {
           alert('Profile saved successfully!');
           window.location.href = '/trainer/profile';
         } else {
-          alert('Progress saved!');
+          // Move to next step after successful save
           if (step < 5) {
-            handleNext();
+            setStep(step + 1);
+            window.scrollTo(0, 0);
           }
         }
       } else {
-        throw new Error(data.message || 'Failed to save profile');
+        setError(response.data?.message || 'Failed to save profile');
       }
+      setLoading(false);
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to save profile');
+      const errorMsg = err.response?.data?.message ||
+                      (err.response?.data?.errors ? Object.values(err.response.data.errors).flat().join(', ') : '') ||
+                      err.message ||
+                      'Failed to save profile';
+      setError(errorMsg);
       setLoading(false);
     }
   };
