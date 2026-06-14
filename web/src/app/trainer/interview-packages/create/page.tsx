@@ -135,9 +135,8 @@ export default function CreateInterviewPackagePage() {
     setStep(step - 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateStep(step)) {
+  const submitPackage = async (asDraft = false) => {
+    if (!validateStep(5)) {
       setError('Please fill all required fields');
       return;
     }
@@ -170,7 +169,7 @@ export default function CreateInterviewPackagePage() {
         includes_cv_review: formData.includes_cv_review,
         includes_career_guideline: formData.includes_career_guideline,
         includes_mock_interview: formData.includes_mock_interview,
-        status: formData.status.toLowerCase(),
+        status: asDraft ? 'draft' : formData.status.toLowerCase(),
       };
 
       const response = await fetch('/api/v1/trainers/interview-packages', {
@@ -188,12 +187,17 @@ export default function CreateInterviewPackagePage() {
         throw new Error(data.message || 'Failed to create package');
       }
 
-      alert('Package created successfully!');
+      alert(`Package ${asDraft ? 'saved as draft' : 'published'} successfully!`);
       window.location.href = '/trainer/interview-packages';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create package');
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitPackage(false);
   };
 
   const stepLabels = ['Basic Info', 'Session', 'Pricing', 'Availability', 'Publish'];
@@ -455,7 +459,7 @@ export default function CreateInterviewPackagePage() {
             <Button variant="primary" className="flex gap-2" onClick={handleNext}>Next<ChevronRight className="w-5 h-5" /></Button>
           ) : (
             <>
-              <Button variant="outline" className="flex gap-2" onClick={() => { setFormData(prev => ({...prev, status: 'Draft'})); handleSubmit({preventDefault: () => {}} as React.FormEvent); }}>Save as Draft</Button>
+              <Button variant="outline" className="flex gap-2" onClick={() => submitPackage(true)} loading={loading}>Save as Draft</Button>
               <Button variant="primary" type="submit" className="flex gap-2" loading={loading}><Save className="w-5 h-5" />Publish Package</Button>
             </>
           )}
