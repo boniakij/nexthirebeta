@@ -15,6 +15,9 @@ use App\Http\Controllers\V1\Gamification\BadgeController;
 use App\Http\Controllers\V1\Gamification\LeaderboardController;
 use App\Http\Controllers\V1\Gamification\XPController;
 use App\Http\Controllers\V1\Admin\TrainerProfileAdminController;
+use App\Http\Controllers\V1\Trainer\WalletController;
+use App\Http\Controllers\V1\Trainer\WithdrawalController;
+use App\Http\Controllers\V1\Admin\CommissionSettingController;
 
 Route::prefix('v1')->group(function () {
 
@@ -107,6 +110,11 @@ Route::prefix('v1')->group(function () {
             Route::post('me/profile/certifications', [TrainerProfileController::class, 'addCertification']);
             Route::put('me/profile/certifications/{id}', [TrainerProfileController::class, 'updateCertification']);
             Route::delete('me/profile/certifications/{id}', [TrainerProfileController::class, 'deleteCertification']);
+
+            // Wallet and Withdrawal Routes
+            Route::get('me/wallet', [WalletController::class, 'show']);
+            Route::get('me/withdrawals', [WithdrawalController::class, 'index']);
+            Route::post('me/withdrawals', [WithdrawalController::class, 'store']);
         });
 
         // Booking Routes
@@ -150,6 +158,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('admin/trainers/{trainerId}/reject', [TrainerProfileAdminController::class, 'rejectProfile']);
             Route::patch('admin/trainers/{trainerId}/suspend', [TrainerProfileAdminController::class, 'suspendProfile']);
             Route::get('admin/trainers', [TrainerProfileAdminController::class, 'listTrainerProfiles']);
+
+            // Commission Settings Routes
+            Route::get('admin/commission-settings', [CommissionSettingController::class, 'index']);
+            Route::post('admin/commission-settings', [CommissionSettingController::class, 'store']);
+            Route::put('admin/commission-settings/{setting}', [CommissionSettingController::class, 'update']);
+            Route::patch('admin/commission-settings/{setting}/activate', [CommissionSettingController::class, 'activate']);
+            Route::patch('admin/commission-settings/{setting}/deactivate', [CommissionSettingController::class, 'deactivate']);
+            Route::post('admin/commission-settings/calculate-preview', [CommissionSettingController::class, 'calculatePreview']);
         });
     });
 });
