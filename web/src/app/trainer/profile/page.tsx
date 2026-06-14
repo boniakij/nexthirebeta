@@ -47,43 +47,43 @@ const mockTrainerProfile: TrainerProfile = {
 };
 
 export default function TrainerProfilePage() {
-  const [profile, setProfile] = useState<TrainerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<TrainerProfile | null>(mockTrainerProfile);
+  const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editData, setEditData] = useState<Partial<TrainerProfile>>({});
+  const [editData, setEditData] = useState<Partial<TrainerProfile>>(mockTrainerProfile);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        setLoading(true);
+        // Try to fetch from API, but don't block UI
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-        // Add timeout to API call
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('API timeout')), 5000)
-        );
+        const response = await fetch('/api/v1/trainers/me/profile', {
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-        const apiPromise = apiClient.get('/trainers/me/profile');
-        const { data } = await Promise.race([apiPromise, timeoutPromise]) as any;
+        clearTimeout(timeoutId);
 
-        if (data?.success && data?.data) {
-          setProfile(data.data);
-          setEditData(data.data);
-        } else {
-          // Fallback to mock data if API returns empty
-          setProfile(mockTrainerProfile);
-          setEditData(mockTrainerProfile);
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.success && data?.data) {
+            setProfile(data.data);
+            setEditData(data.data);
+          }
         }
       } catch (err: any) {
-        console.error('Failed to fetch profile:', err.message);
-        // Fallback to mock data on error or timeout
-        setProfile(mockTrainerProfile);
-        setEditData(mockTrainerProfile);
-      } finally {
-        setLoading(false);
+        console.log('Using mock data:', err.message);
+        // Silently fail - already showing mock data
       }
     };
 
+    // Fetch in background without blocking UI
     fetchProfile();
   }, []);
 
