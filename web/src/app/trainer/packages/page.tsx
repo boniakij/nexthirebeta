@@ -23,8 +23,7 @@ interface Package {
 }
 
 function PackagesContent() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [packages, setPackages] = useState<Package[]>(getMockPackages());
   const [showModal, setShowModal] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [formData, setFormData] = useState({
@@ -43,16 +42,31 @@ function PackagesContent() {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const { data } = await trainerApi.getPackages();
-        setPackages(data.data || []);
+        // Try to fetch with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+        const response = await fetch('/api/v1/trainers/me/packages', {
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.success && data?.data) {
+            setPackages(data.data);
+          }
+        }
       } catch (error) {
-        console.error('Failed to fetch packages:', error);
-        setPackages(getMockPackages());
-      } finally {
-        setLoading(false);
+        console.log('Using mock packages');
       }
     };
 
+    // Fetch in background
     fetchPackages();
   }, []);
 
@@ -127,14 +141,6 @@ function PackagesContent() {
       console.error('Failed to toggle package:', error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
