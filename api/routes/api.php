@@ -17,6 +17,7 @@ use App\Http\Controllers\V1\Gamification\XPController;
 use App\Http\Controllers\V1\Admin\TrainerProfileAdminController;
 use App\Http\Controllers\V1\Trainer\WalletController;
 use App\Http\Controllers\V1\Trainer\WithdrawalController;
+use App\Http\Controllers\V1\Trainer\PaymentMethodController;
 use App\Http\Controllers\V1\Admin\CommissionSettingController;
 use App\Http\Controllers\V1\Admin\WithdrawalController as AdminWithdrawalController;
 
@@ -116,6 +117,12 @@ Route::prefix('v1')->group(function () {
             Route::get('me/wallet', [WalletController::class, 'show']);
             Route::get('me/withdrawals', [WithdrawalController::class, 'index']);
             Route::post('me/withdrawals', [WithdrawalController::class, 'store']);
+
+            // Payout Methods Routes
+            Route::get('me/payout-methods', [PaymentMethodController::class, 'index']);
+            Route::post('me/payout-methods', [PaymentMethodController::class, 'store']);
+            Route::put('me/payout-methods/{id}', [PaymentMethodController::class, 'update']);
+            Route::delete('me/payout-methods/{id}', [PaymentMethodController::class, 'destroy']);
         });
 
         // Booking Routes
