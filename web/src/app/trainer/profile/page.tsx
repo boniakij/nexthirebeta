@@ -445,134 +445,157 @@ export default function TrainerProfilePage() {
         </div>
       )}
 
-      {/* Hero Section */}
-      <div className="relative -mx-8 -mt-6 bg-gradient-to-r from-blue-600 to-blue-400 px-8 py-12">
-        <div className="max-w-6xl mx-auto flex items-start gap-8">
-          {/* Profile Photo with Upload */}
-          <div className="flex-shrink-0 relative group">
-            <img
-              src={imagePreview || profile.profile_photo}
-              alt={profile.full_name}
-              className="w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="absolute bottom-0 right-0 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition disabled:opacity-50"
-              title="Upload photo"
-            >
-              {uploading ? (
-                <Spinner size="sm" />
-              ) : (
-                <Camera className="w-5 h-5 text-blue-600" />
-              )}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              disabled={uploading}
-            />
-          </div>
+      {/* Hero Section - Enterprise Grade */}
+      <div className="relative -mx-8 -mt-6 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 px-8 py-16">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        </div>
 
-          {/* Info */}
-          <div className="flex-1 text-white">
-            <h1 className="text-5xl font-bold">{profile.full_name}</h1>
-            <p className="text-blue-100 mt-2 text-lg">{profile.user_email}</p>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-6 mt-6">
-              <div>
-                <p className="text-blue-100 text-sm uppercase">Rating</p>
-                <p className="text-3xl font-bold mt-1 flex items-center gap-2">
-                  <Star className="w-6 h-6 fill-yellow-300 text-yellow-300" />
-                  {profile.average_rating}
-                </p>
-                <p className="text-blue-200 text-xs mt-1">({profile.total_reviews} reviews)</p>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row items-start gap-8">
+            {/* Profile Photo with Upload */}
+            <div className="flex-shrink-0 relative group">
+              <div className="relative">
+                <img
+                  src={imagePreview || profile.profile_photo}
+                  alt={profile.full_name}
+                  className="w-48 h-48 rounded-2xl border-4 border-white object-cover shadow-2xl"
+                />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div>
-                <p className="text-blue-100 text-sm uppercase">Sessions</p>
-                <p className="text-3xl font-bold mt-1">{profile.total_sessions}</p>
-                <p className="text-blue-200 text-xs mt-1">Completed</p>
-              </div>
-              <div>
-                <p className="text-blue-100 text-sm uppercase">Experience</p>
-                <p className="text-3xl font-bold mt-1">{profile.experience_years}+</p>
-                <p className="text-blue-200 text-xs mt-1">Years</p>
-              </div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute bottom-3 right-3 bg-white text-blue-600 rounded-full p-3 shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all disabled:opacity-50 duration-300"
+                title="Upload photo"
+              >
+                {uploading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Camera className="w-6 h-6" />
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={uploading}
+              />
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 mt-8">
-              {!isEditMode ? (
-                <>
-                  <Button variant="primary" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold flex items-center gap-2">
-                    <Edit className="w-4 h-4" />
-                    Edit Profile
-                  </Button>
-                  <Link href="/trainer/profile/setup">
-                    <Button className="bg-blue-700 hover:bg-blue-800 text-white font-semibold flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Complete Profile
+            {/* Info */}
+            <div className="flex-1 text-white">
+              <div className="mb-6">
+                <h1 className="text-5xl font-bold mb-2">{profile.full_name}</h1>
+                <p className="text-blue-200 text-lg opacity-90">{profile.user_email}</p>
+              </div>
+
+              {/* Quick Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">Rating</p>
+                  <p className="text-3xl font-bold mt-2 flex items-center gap-2">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    {profile.average_rating}
+                  </p>
+                  <p className="text-blue-300 text-xs mt-1">({profile.total_reviews} reviews)</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">Sessions</p>
+                  <p className="text-3xl font-bold mt-2">{profile.total_sessions}</p>
+                  <p className="text-blue-300 text-xs mt-1">Completed</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">Experience</p>
+                  <p className="text-3xl font-bold mt-2">{profile.experience_years}+</p>
+                  <p className="text-blue-300 text-xs mt-1">Years</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider">Earnings</p>
+                  <p className="text-3xl font-bold mt-2">৳{(profile.total_earnings / 1000).toFixed(1)}k</p>
+                  <p className="text-blue-300 text-xs mt-1">Total earned</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3">
+                {!isEditMode ? (
+                  <>
+                    <Button
+                      onClick={handleEdit}
+                      className="bg-white text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit Profile
                     </Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Button className="bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center gap-2" onClick={handleSave}>
-                    <Save className="w-4 h-4" />
-                    Save
-                  </Button>
-                  <Button variant="outline" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold flex items-center gap-2" onClick={handleCancel}>
-                    <X className="w-4 h-4" />
-                    Cancel
-                  </Button>
-                </>
-              )}
+                    <Link href="/trainer/profile/setup">
+                      <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all">
+                        <CheckCircle className="w-4 h-4" />
+                        Complete Profile
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      className="bg-green-500 hover:bg-green-600 text-white font-semibold flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg transition-all"
+                      onClick={handleSave}
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="bg-white/20 text-white border border-white hover:bg-white/30 font-semibold flex items-center gap-2 px-6 py-3 rounded-lg transition-all"
+                      onClick={handleCancel}
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Profile Completion */}
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-          <CardBody className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-600 font-semibold">Profile Completion</p>
-              <p className="text-gray-700 mt-1">Complete missing information to boost visibility</p>
+        {/* Profile Completion - Enterprise Grade */}
+        <Card className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 border-0 shadow-xl">
+          <CardBody className="flex flex-col md:flex-row justify-between items-center gap-8 text-white">
+            <div className="flex-1">
+              <h3 className="text-2xl font-bold mb-2">Profile Completion</h3>
+              <p className="text-emerald-50 text-lg">Complete your profile to increase visibility and attract more students</p>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="relative w-24 h-24">
-                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+            <div className="flex items-center gap-8">
+              <div className="relative w-28 h-28 flex-shrink-0">
+                <svg className="w-28 h-28 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
                   <circle
                     cx="50"
                     cy="50"
                     r="45"
                     fill="none"
-                    stroke="#e5e7eb"
-                    strokeWidth="8"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#10b981"
+                    stroke="white"
                     strokeWidth="8"
                     strokeDasharray={`${profileCompletion * 2.83} 283`}
                     strokeLinecap="round"
+                    className="transition-all duration-500"
                   />
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-green-600">{profileCompletion}%</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-white">{profileCompletion}%</span>
+                  <span className="text-xs text-emerald-50">Complete</span>
                 </div>
               </div>
               <Link href="/trainer/profile/setup">
-                <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold">
-                  Complete Missing Info →
+                <Button className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all">
+                  Complete Profile →
                 </Button>
               </Link>
             </div>
@@ -580,47 +603,63 @@ export default function TrainerProfilePage() {
         </Card>
 
         {/* About Me Section */}
-        <Card>
-          <CardHeader>
-            <h2 className="text-2xl font-bold text-gray-900">👤 About Me</h2>
+        <Card className="shadow-lg border-0 hover:shadow-xl transition-shadow">
+          <CardHeader className="border-b border-gray-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></div>
+              <h2 className="text-2xl font-bold text-gray-900">About Me</h2>
+            </div>
           </CardHeader>
-          <CardBody>
+          <CardBody className="pt-6">
             {isEditMode ? (
               <textarea
                 value={editData.bio || ''}
                 onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-                rows={4}
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={5}
+                placeholder="Write your professional bio..."
               />
             ) : (
-              <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
+              <p className="text-gray-700 leading-relaxed text-lg">{profile.bio}</p>
             )}
           </CardBody>
         </Card>
 
         {/* Personal Information Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">💰 Personal Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardBody>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Hourly Rate</p>
-                <p className="text-4xl font-bold text-primary-600 mt-3">${profile.hourly_rate}</p>
-                <p className="text-xs text-gray-500 mt-2">per hour</p>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardBody className="text-center">
+                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">💵</span>
+                </div>
+                <p className="text-xs text-gray-600 uppercase font-semibold tracking-wider">Hourly Rate</p>
+                <p className="text-4xl font-bold text-blue-600 mt-3">${profile.hourly_rate}</p>
+                <p className="text-sm text-gray-600 mt-2">per session hour</p>
               </CardBody>
             </Card>
-            <Card>
-              <CardBody>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Total Earnings</p>
-                <p className="text-4xl font-bold text-green-600 mt-3">${profile.total_earnings.toLocaleString()}</p>
-                <p className="text-xs text-gray-500 mt-2">lifetime</p>
+            <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardBody className="text-center">
+                <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">💰</span>
+                </div>
+                <p className="text-xs text-gray-600 uppercase font-semibold tracking-wider">Total Earnings</p>
+                <p className="text-4xl font-bold text-emerald-600 mt-3">৳{(profile.total_earnings / 1000).toFixed(1)}k</p>
+                <p className="text-sm text-gray-600 mt-2">lifetime earnings</p>
               </CardBody>
             </Card>
-            <Card>
-              <CardBody>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Member Since</p>
-                <p className="text-2xl font-bold text-gray-900 mt-3">{new Date(profile.created_at).toLocaleDateString()}</p>
-                <p className="text-xs text-gray-500 mt-2">joined</p>
+            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardBody className="text-center">
+                <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">📅</span>
+                </div>
+                <p className="text-xs text-gray-600 uppercase font-semibold tracking-wider">Member Since</p>
+                <p className="text-2xl font-bold text-purple-600 mt-3">{new Date(profile.created_at).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-600 mt-2">joined platform</p>
               </CardBody>
             </Card>
           </div>
@@ -724,37 +763,51 @@ export default function TrainerProfilePage() {
       {/* Skills Section */}
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">💡 Skills</h2>
-          <Card>
-            <CardBody className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-                <Input placeholder="Skill Name *" value={newSkill.skill_name} onChange={(e) => setNewSkill({ ...newSkill, skill_name: e.target.value })} />
-                <Input placeholder="Category" value={newSkill.skill_category} onChange={(e) => setNewSkill({ ...newSkill, skill_category: e.target.value })} />
-                <select value={newSkill.skill_level} onChange={(e) => setNewSkill({ ...newSkill, skill_level: e.target.value })} className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600">
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                  <option value="Expert">Expert</option>
-                </select>
-                <Input type="number" placeholder="Years" value={newSkill.years_experience} onChange={(e) => setNewSkill({ ...newSkill, years_experience: parseInt(e.target.value) })} />
-                <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-300">
-                  <input type="checkbox" checked={newSkill.is_featured} onChange={(e) => setNewSkill({ ...newSkill, is_featured: e.target.checked })} />
-                  <span className="text-sm">Featured</span>
-                </label>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-gray-900">Skills & Expertise</h2>
+          </div>
+          <Card className="shadow-lg border-0">
+            <CardBody className="space-y-6">
+              <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-600">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                  <Input placeholder="Skill Name *" value={newSkill.skill_name} onChange={(e) => setNewSkill({ ...newSkill, skill_name: e.target.value })} className="border-gray-300 focus:ring-blue-500" />
+                  <Input placeholder="Category" value={newSkill.skill_category} onChange={(e) => setNewSkill({ ...newSkill, skill_category: e.target.value })} className="border-gray-300 focus:ring-blue-500" />
+                  <select value={newSkill.skill_level} onChange={(e) => setNewSkill({ ...newSkill, skill_level: e.target.value })} className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Expert">Expert</option>
+                  </select>
+                  <Input type="number" placeholder="Years" value={newSkill.years_experience} onChange={(e) => setNewSkill({ ...newSkill, years_experience: parseInt(e.target.value) })} className="border-gray-300 focus:ring-blue-500" />
+                  <label className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer">
+                    <input type="checkbox" checked={newSkill.is_featured} onChange={(e) => setNewSkill({ ...newSkill, is_featured: e.target.checked })} className="rounded" />
+                    <span className="text-sm font-medium text-gray-700">Featured</span>
+                  </label>
+                </div>
+                <Button onClick={addSkill} className="bg-blue-600 hover:bg-blue-700 w-full mt-3 rounded-lg py-2">
+                  <Plus className="w-4 h-4 mr-2" /> Add Skill
+                </Button>
               </div>
-              <Button onClick={addSkill} className="bg-blue-600 hover:bg-blue-700 w-full">
-                <Plus className="w-4 h-4 mr-2" /> Add Skill
-              </Button>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {skills.map((skill) => (
-                  <div key={skill.id} className="p-3 bg-gray-50 rounded flex justify-between items-center">
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">{skill.skill_name}</p>
-                      <p className="text-xs text-gray-600">{skill.skill_category} • {skill.skill_level} • {skill.years_experience} yrs {skill.is_featured && '⭐'}</p>
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {skills.length > 0 ? (
+                  skills.map((skill) => (
+                    <div key={skill.id} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all flex justify-between items-center">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-gray-900">{skill.skill_name}</p>
+                          {skill.is_featured && <Badge variant="success" className="text-xs">⭐ Featured</Badge>}
+                        </div>
+                        <p className="text-sm text-gray-600">{skill.skill_category} • <Badge variant="gray" className="text-xs inline">{skill.skill_level}</Badge> • {skill.years_experience} {skill.years_experience === 1 ? 'year' : 'years'}</p>
+                      </div>
+                      <button onClick={() => removeSkill(skill.id)} className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-all">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <button onClick={() => removeSkill(skill.id)}><Trash2 className="w-4 h-4 text-red-600" /></button>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 py-8">No skills added yet. Add your first skill above.</p>
+                )}
               </div>
             </CardBody>
           </Card>
