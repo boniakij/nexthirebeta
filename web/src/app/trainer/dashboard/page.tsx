@@ -135,7 +135,7 @@ function TrainerDashboardContent() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardBody className="text-center">
             <div className="flex justify-center mb-3">
@@ -177,6 +177,53 @@ function TrainerDashboardContent() {
             <p className="text-sm text-gray-600 mb-1">Pending</p>
             <p className="text-3xl font-bold text-gray-900">{stats.pending_evaluations}</p>
             <p className="text-xs text-gray-500 mt-2">Evaluations</p>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Additional Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardBody className="text-center">
+            <div className="flex justify-center mb-3">
+              <span className="text-4xl">👥</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Total Students</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.total_students}</p>
+            <p className="text-xs text-gray-500 mt-2">Students Trained</p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <div className="flex justify-center mb-3">
+              <span className="text-4xl">✅</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Completed Sessions</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.completed_sessions}</p>
+            <p className="text-xs text-gray-500 mt-2">This Month</p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <div className="flex justify-center mb-3">
+              <span className="text-4xl">🎯</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Completion Rate</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.completion_rate}%</p>
+            <p className="text-xs text-gray-500 mt-2">Sessions Completed</p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardBody className="text-center">
+            <div className="flex justify-center mb-3">
+              <span className="text-4xl">🌉</span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Profile Complete</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.profile_completion}%</p>
+            <p className="text-xs text-gray-500 mt-2">Profile Progress</p>
           </CardBody>
         </Card>
       </div>
@@ -332,6 +379,10 @@ function getMockDashboardData() {
     average_rating: 4.8,
     pending_evaluations: 3,
     is_approved: true,
+    total_students: 87,
+    completed_sessions: 42,
+    completion_rate: 94,
+    profile_completion: 100,
   };
 }
 
