@@ -57,8 +57,16 @@ export default function TrainerProfilePage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const { data } = await apiClient.get('/trainers/me/profile');
-        if (data.success && data.data) {
+
+        // Add timeout to API call
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('API timeout')), 5000)
+        );
+
+        const apiPromise = apiClient.get('/trainers/me/profile');
+        const { data } = await Promise.race([apiPromise, timeoutPromise]) as any;
+
+        if (data?.success && data?.data) {
           setProfile(data.data);
           setEditData(data.data);
         } else {
@@ -67,8 +75,8 @@ export default function TrainerProfilePage() {
           setEditData(mockTrainerProfile);
         }
       } catch (err: any) {
-        console.error('Failed to fetch profile:', err);
-        // Fallback to mock data on error
+        console.error('Failed to fetch profile:', err.message);
+        // Fallback to mock data on error or timeout
         setProfile(mockTrainerProfile);
         setEditData(mockTrainerProfile);
       } finally {
