@@ -23,27 +23,40 @@ interface PayoutHistory {
 }
 
 function EarningsContent() {
-  const [summary, setSummary] = useState<EarningsSummary | null>(null);
-  const [payoutHistory, setPayoutHistory] = useState<PayoutHistory[]>([]);
+  const [summary, setSummary] = useState<EarningsSummary>(getMockSummary());
+  const [payoutHistory, setPayoutHistory] = useState<PayoutHistory[]>(getMockPayoutHistory());
   const [payoutMethod, setPayoutMethod] = useState('');
   const [payoutDetails, setPayoutDetails] = useState('');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEarnings = async () => {
       try {
-        const { data } = await trainerApi.getEarnings();
-        setSummary(data.data);
-        setPayoutHistory(data.data?.payout_history || []);
+        // Try to fetch with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+        const response = await fetch('/api/v1/trainers/me/earnings', {
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.success && data?.data) {
+            setSummary(data.data);
+            setPayoutHistory(data.data?.payout_history || []);
+          }
+        }
       } catch (error) {
-        console.error('Failed to fetch earnings:', error);
-        setSummary(getMockSummary());
-        setPayoutHistory(getMockPayoutHistory());
-      } finally {
-        setLoading(false);
+        console.log('Using mock earnings');
       }
     };
 
+    // Fetch in background
     fetchEarnings();
   }, []);
 
@@ -70,14 +83,6 @@ function EarningsContent() {
       console.error('Failed to save payout settings:', error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
 
   const mockSummary = getMockSummary();
   const stats: EarningsSummary = {
