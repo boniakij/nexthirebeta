@@ -89,7 +89,10 @@
       "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/setup-full.png\" \"http://localhost:3000/trainer/profile/setup\")",
       "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/validation-error.png\" \"http://localhost:3000/trainer/profile/setup\")",
       "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/setup-prepopulated.png\" \"http://localhost:3000/trainer/profile/setup\")",
-      "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/setup-full-view.png\" \"http://localhost:3000/trainer/profile/setup\")"
+      "Bash(google-chrome --headless=new --window-size=1280,3500 --screenshot=\"/tmp/setup-full-view.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2200 --screenshot=\"/tmp/trainer-setup-ready.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2200 --screenshot=\"/tmp/setup-test.png\" \"http://localhost:3000/trainer/profile/setup\")",
+      "Bash(google-chrome --headless=new --window-size=1280,2500 --screenshot=\"/tmp/final-setup-form.png\" \"http://localhost:3000/trainer/profile/setup\")"
     ]
   }
 }

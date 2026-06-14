@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardBody, CardHeader, Badge, Button, Input, Spinner } from '@/components/ui';
 import { Edit, Save, X, Star, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import apiClient from '@/lib/api/client';
 
 interface TrainerProfile {
   id: number;
@@ -46,15 +47,36 @@ const mockTrainerProfile: TrainerProfile = {
 };
 
 export default function TrainerProfilePage() {
-  const [profile, setProfile] = useState<TrainerProfile | null>(mockTrainerProfile);
-  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<TrainerProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editData, setEditData] = useState<Partial<TrainerProfile>>(mockTrainerProfile);
+  const [editData, setEditData] = useState<Partial<TrainerProfile>>({});
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    // const { data } = await trainerApi.getProfile();
-    // For now using mock data loaded from initial state
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const { data } = await apiClient.get('/trainers/me/profile');
+        if (data.success && data.data) {
+          setProfile(data.data);
+          setEditData(data.data);
+        } else {
+          // Fallback to mock data if API returns empty
+          setProfile(mockTrainerProfile);
+          setEditData(mockTrainerProfile);
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch profile:', err);
+        // Fallback to mock data on error
+        setProfile(mockTrainerProfile);
+        setEditData(mockTrainerProfile);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
   const handleEdit = () => {
@@ -63,11 +85,19 @@ export default function TrainerProfilePage() {
   };
 
   const handleSave = async () => {
-    // TODO: Call API to save profile
-    if (profile) {
-      setProfile({ ...profile, ...editData });
+    try {
+      setLoading(true);
+      const { data } = await apiClient.post('/trainers/me/profile', editData);
+      if (data.success) {
+        setProfile(data.data);
+        setIsEditMode(false);
+      }
+    } catch (err: any) {
+      setError('Failed to save profile');
+      console.error('Save error:', err);
+    } finally {
+      setLoading(false);
     }
-    setIsEditMode(false);
   };
 
   const handleCancel = () => {
@@ -93,6 +123,12 @@ export default function TrainerProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
