@@ -26,18 +26,29 @@ export default function AvailabilityPage() {
   const [bookingRules, setBookingRules] = useState<any>(null);
   const [editingRules, setEditingRules] = useState(false);
 
+  // Calendar State
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarSlots, setCalendarSlots] = useState<any[]>([]);
+
   // Fetch all data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [weeklyRes, rulesRes] = await Promise.all([
+        const [weeklyRes, rulesRes, slotsRes] = await Promise.all([
           apiClient.get('/trainers/me/availability/weekly-schedule').catch(() => ({ data: { success: false, data: [] } })),
           apiClient.get('/trainers/me/availability/booking-rules').catch(() => ({ data: { success: false, data: {} } })),
+          apiClient.get('/trainers/me/availability/calendar', {
+            params: {
+              start_date: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0],
+              end_date: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0],
+            },
+          }).catch(() => ({ data: { success: false, data: {} } })),
         ]);
 
         if (weeklyRes.data?.success) setWeeklySchedule(weeklyRes.data.data);
         if (rulesRes.data?.success) setBookingRules(rulesRes.data.data);
+        if (slotsRes.data?.success) setCalendarSlots(Object.values(slotsRes.data.data).flat());
       } catch (err) {
         console.error('Error fetching data:', err);
       } finally {
@@ -46,9 +57,19 @@ export default function AvailabilityPage() {
     };
 
     fetchData();
-  }, []);
+  }, [currentDate]);
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const monthDays = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+
+  const getSlotStatus = (date: string) => {
+    const slots = calendarSlots.filter((s: any) => s.date === date);
+    if (slots.length === 0) return 'none';
+    if (slots.some((s: any) => s.status === 'booked')) return 'booked';
+    if (slots.some((s: any) => s.status === 'available')) return 'available';
+    return 'other';
+  };
 
   return (
     <div className="space-y-8">
@@ -94,9 +115,106 @@ export default function AvailabilityPage() {
 
       {!loading && activeTab === 'calendar' && (
         <Card className="shadow-lg border-0">
-          <CardHeader><h2 className="text-xl font-bold">Availability Calendar</h2></CardHeader>
+          <CardHeader className="flex justify-between items-center border-b pb-4">
+            <h2 className="text-xl font-bold">Availability Calendar</h2>
+            <div className="flex gap-2 items-center">
+              <Button
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+                variant="outline"
+                className="px-3 py-1 text-sm"
+              >
+                ←
+              </Button>
+              <span className="font-semibold text-gray-900 min-w-32 text-center">
+                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </span>
+              <Button
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+                variant="outline"
+                className="px-3 py-1 text-sm"
+              >
+                →
+              </Button>
+              <Button
+                onClick={() => setCurrentDate(new Date())}
+                variant="outline"
+                className="px-3 py-1 text-sm"
+              >
+                Today
+              </Button>
+            </div>
+          </CardHeader>
           <CardBody>
-            <p className="text-gray-600">Calendar view coming soon. Use tabs to manage availability.</p>
+            {/* Legend */}
+            <div className="flex gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-200 border-2 border-green-600 rounded"></div>
+                <span className="text-sm text-gray-600">Available</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-200 border-2 border-blue-600 rounded"></div>
+                <span className="text-sm text-gray-600">Booked</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-200 border-2 border-gray-400 rounded"></div>
+                <span className="text-sm text-gray-600">No Slots</span>
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="overflow-x-auto">
+              <div className="grid grid-cols-7 gap-1 mb-4">
+                {/* Day headers */}
+                {days.map(day => (
+                  <div key={day} className="text-center font-semibold text-gray-600 py-2 text-sm">
+                    {day.slice(0, 3)}
+                  </div>
+                ))}
+
+                {/* Empty cells for days before month starts */}
+                {Array.from({ length: firstDay }).map((_, idx) => (
+                  <div key={`empty-${idx}`} className="aspect-square bg-gray-50 rounded-lg border border-gray-100"></div>
+                ))}
+
+                {/* Calendar days */}
+                {Array.from({ length: monthDays }).map((_, idx) => {
+                  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), idx + 1);
+                  const dateStr = date.toISOString().split('T')[0];
+                  const status = getSlotStatus(dateStr);
+                  const isToday = new Date().toDateString() === date.toDateString();
+
+                  let bgColor = 'bg-gray-50 border-gray-200';
+                  if (status === 'available') bgColor = 'bg-green-50 border-green-300';
+                  if (status === 'booked') bgColor = `bg-blue-50 border-blue-300`;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`aspect-square rounded-lg border-2 p-2 cursor-pointer hover:shadow-md transition ${bgColor} ${
+                        isToday ? 'ring-2 ring-blue-600' : ''
+                      }`}
+                    >
+                      <div className="h-full flex flex-col items-center justify-center">
+                        <span className={`text-sm font-semibold ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
+                          {idx + 1}
+                        </span>
+                        {status === 'available' && <span className="text-xs text-green-600 mt-0.5">●</span>}
+                        {status === 'booked' && <span className="text-xs text-blue-600 mt-0.5">●</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Calendar Info */}
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Total Slots:</span> {calendarSlots.length} •{' '}
+                <span className="font-semibold text-green-600">Available:</span> {calendarSlots.filter((s: any) => s.status === 'available').length} •{' '}
+                <span className="font-semibold text-blue-600">Booked:</span> {calendarSlots.filter((s: any) => s.status === 'booked').length}
+              </p>
+            </div>
           </CardBody>
         </Card>
       )}
