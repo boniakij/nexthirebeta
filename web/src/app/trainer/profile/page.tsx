@@ -88,12 +88,13 @@ export default function TrainerProfilePage() {
   const [newProject, setNewProject] = useState({ title: '', type: 'Project', organization: '', role: '', achievement_date: '', description: '', result_impact: '', project_url: '', is_public: true });
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const response = await fetch('/api/v1/trainers/me/profile', {
+        // Fetch profile
+        const profileResponse = await fetch('/api/v1/trainers/me/profile', {
           signal: controller.signal,
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
@@ -101,21 +102,40 @@ export default function TrainerProfilePage() {
           },
         });
 
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
+        if (profileResponse.ok) {
+          const data = await profileResponse.json();
           if (data?.success && data?.data) {
             setProfile(data.data);
             setEditData(data.data);
           }
+        }
+
+        clearTimeout(timeoutId);
+
+        // Fetch sections in parallel
+        const skillsPromise = apiClient.get('/trainers/me/skills').catch(() => ({ data: { success: false } }));
+        const educationsPromise = apiClient.get('/trainers/me/educations').catch(() => ({ data: { success: false } }));
+        const achievementsPromise = apiClient.get('/trainers/me/achievements').catch(() => ({ data: { success: false } }));
+
+        const [skillsRes, educationsRes, achievementsRes] = await Promise.all([skillsPromise, educationsPromise, achievementsPromise]);
+
+        if (skillsRes.data?.success && skillsRes.data?.data?.length > 0) {
+          setSkills(skillsRes.data.data);
+        }
+
+        if (educationsRes.data?.success && educationsRes.data?.data?.length > 0) {
+          setEducation(educationsRes.data.data);
+        }
+
+        if (achievementsRes.data?.success && achievementsRes.data?.data?.length > 0) {
+          setProjects(achievementsRes.data.data);
         }
       } catch (err: any) {
         console.log('Using mock data:', err.message);
       }
     };
 
-    fetchProfile();
+    fetchData();
   }, []);
 
   const handleEdit = () => {
@@ -145,63 +165,158 @@ export default function TrainerProfilePage() {
   };
 
   // Skill handlers
-  const addSkill = () => {
+  const addSkill = async () => {
     if (newSkill.skill_name && newSkill.skill_category && newSkill.skill_level) {
-      setSkills([...skills, { ...newSkill, id: Date.now() }]);
-      setNewSkill({ skill_name: '', skill_category: '', skill_level: 'Intermediate', years_experience: 0, is_featured: false });
+      try {
+        const response = await apiClient.post('/trainers/me/skills', newSkill);
+        if (response.data?.success) {
+          setSkills([...skills, response.data.data]);
+          setNewSkill({ skill_name: '', skill_category: '', skill_level: 'Intermediate', years_experience: 0, is_featured: false });
+        }
+      } catch (err) {
+        console.error('Add skill error:', err);
+        // Fallback to local state
+        setSkills([...skills, { ...newSkill, id: Date.now() }]);
+        setNewSkill({ skill_name: '', skill_category: '', skill_level: 'Intermediate', years_experience: 0, is_featured: false });
+      }
     }
   };
 
-  const removeSkill = (id: number) => {
-    setSkills(skills.filter((item) => item.id !== id));
+  const removeSkill = async (id: number) => {
+    try {
+      const response = await apiClient.delete(`/trainers/me/skills/${id}`);
+      if (response.data?.success) {
+        setSkills(skills.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Delete skill error:', err);
+      // Fallback to local state
+      setSkills(skills.filter((item) => item.id !== id));
+    }
   };
 
   // Experience handlers
-  const addExperience = () => {
+  const addExperience = async () => {
     if (newExperience.company_name && newExperience.job_title && newExperience.start_date) {
-      setExperience([...experience, { ...newExperience, id: Date.now() }]);
-      setNewExperience({ company_name: '', job_title: '', employment_type: 'full_time', location: '', start_date: '', end_date: '', is_current: false, description: '', key_responsibilities: '' });
+      try {
+        const response = await apiClient.post('/trainers/me/experiences', newExperience);
+        if (response.data?.success) {
+          setExperience([...experience, response.data.data]);
+          setNewExperience({ company_name: '', job_title: '', employment_type: 'full_time', location: '', start_date: '', end_date: '', is_current: false, description: '', key_responsibilities: '' });
+        }
+      } catch (err) {
+        console.error('Add experience error:', err);
+        // Fallback to local state
+        setExperience([...experience, { ...newExperience, id: Date.now() }]);
+        setNewExperience({ company_name: '', job_title: '', employment_type: 'full_time', location: '', start_date: '', end_date: '', is_current: false, description: '', key_responsibilities: '' });
+      }
     }
   };
 
-  const removeExperience = (id: number) => {
-    setExperience(experience.filter((item) => item.id !== id));
+  const removeExperience = async (id: number) => {
+    try {
+      const response = await apiClient.delete(`/trainers/me/experiences/${id}`);
+      if (response.data?.success) {
+        setExperience(experience.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Delete experience error:', err);
+      // Fallback to local state
+      setExperience(experience.filter((item) => item.id !== id));
+    }
   };
 
   // Education handlers
-  const addEducation = () => {
+  const addEducation = async () => {
     if (newEducation.degree && newEducation.institution_name && newEducation.graduation_year) {
-      setEducation([...education, { ...newEducation, id: Date.now() }]);
-      setNewEducation({ degree: '', institution_name: '', field_of_study: '', start_year: new Date().getFullYear(), graduation_year: new Date().getFullYear(), grade: '', description: '' });
+      try {
+        const response = await apiClient.post('/trainers/me/educations', newEducation);
+        if (response.data?.success) {
+          setEducation([...education, response.data.data]);
+          setNewEducation({ degree: '', institution_name: '', field_of_study: '', start_year: new Date().getFullYear(), graduation_year: new Date().getFullYear(), grade: '', description: '' });
+        }
+      } catch (err) {
+        console.error('Add education error:', err);
+        // Fallback to local state
+        setEducation([...education, { ...newEducation, id: Date.now() }]);
+        setNewEducation({ degree: '', institution_name: '', field_of_study: '', start_year: new Date().getFullYear(), graduation_year: new Date().getFullYear(), grade: '', description: '' });
+      }
     }
   };
 
-  const removeEducation = (id: number) => {
-    setEducation(education.filter((item) => item.id !== id));
+  const removeEducation = async (id: number) => {
+    try {
+      const response = await apiClient.delete(`/trainers/me/educations/${id}`);
+      if (response.data?.success) {
+        setEducation(education.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Delete education error:', err);
+      // Fallback to local state
+      setEducation(education.filter((item) => item.id !== id));
+    }
   };
 
   // Certification handlers
-  const addCertification = () => {
+  const addCertification = async () => {
     if (newCertification.certification_name && newCertification.issuing_organization && newCertification.issue_date) {
-      setCertifications([...certifications, { ...newCertification, id: Date.now(), verification_status: 'pending_verification' }]);
-      setNewCertification({ certification_name: '', issuing_organization: '', certificate_id: '', certificate_url: '', issue_date: '', expiry_date: '', does_not_expire: false });
+      try {
+        const response = await apiClient.post('/trainers/me/certifications', newCertification);
+        if (response.data?.success) {
+          setCertifications([...certifications, response.data.data]);
+          setNewCertification({ certification_name: '', issuing_organization: '', certificate_id: '', certificate_url: '', issue_date: '', expiry_date: '', does_not_expire: false });
+        }
+      } catch (err) {
+        console.error('Add certification error:', err);
+        // Fallback to local state
+        setCertifications([...certifications, { ...newCertification, id: Date.now(), verification_status: 'pending_verification' }]);
+        setNewCertification({ certification_name: '', issuing_organization: '', certificate_id: '', certificate_url: '', issue_date: '', expiry_date: '', does_not_expire: false });
+      }
     }
   };
 
-  const removeCertification = (id: number) => {
-    setCertifications(certifications.filter((item) => item.id !== id));
+  const removeCertification = async (id: number) => {
+    try {
+      const response = await apiClient.delete(`/trainers/me/certifications/${id}`);
+      if (response.data?.success) {
+        setCertifications(certifications.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Delete certification error:', err);
+      // Fallback to local state
+      setCertifications(certifications.filter((item) => item.id !== id));
+    }
   };
 
   // Project handlers
-  const addProject = () => {
+  const addProject = async () => {
     if (newProject.title && newProject.type && newProject.achievement_date && newProject.description) {
-      setProjects([...projects, { ...newProject, id: Date.now() }]);
-      setNewProject({ title: '', type: 'Project', organization: '', role: '', achievement_date: '', description: '', result_impact: '', project_url: '', is_public: true });
+      try {
+        const response = await apiClient.post('/trainers/me/achievements', newProject);
+        if (response.data?.success) {
+          setProjects([...projects, response.data.data]);
+          setNewProject({ title: '', type: 'Project', organization: '', role: '', achievement_date: '', description: '', result_impact: '', project_url: '', is_public: true });
+        }
+      } catch (err) {
+        console.error('Add achievement error:', err);
+        // Fallback to local state
+        setProjects([...projects, { ...newProject, id: Date.now() }]);
+        setNewProject({ title: '', type: 'Project', organization: '', role: '', achievement_date: '', description: '', result_impact: '', project_url: '', is_public: true });
+      }
     }
   };
 
-  const removeProject = (id: number) => {
-    setProjects(projects.filter((item) => item.id !== id));
+  const removeProject = async (id: number) => {
+    try {
+      const response = await apiClient.delete(`/trainers/me/achievements/${id}`);
+      if (response.data?.success) {
+        setProjects(projects.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error('Delete achievement error:', err);
+      // Fallback to local state
+      setProjects(projects.filter((item) => item.id !== id));
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
