@@ -145,46 +145,58 @@ export default function TrainerProfilePage() {
       const formData = new FormData();
       formData.append('photo', file);
 
+      const token = localStorage.getItem('auth_token');
+      console.log('Upload starting. Auth token:', token ? 'Present' : 'Missing');
+
       const response = await fetch('/api/v1/trainers/me/profile/photo', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: formData,
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', {
+        contentType: response.headers.get('content-type'),
       });
 
       const contentType = response.headers.get('content-type');
       let data;
 
       try {
-        if (contentType?.includes('application/json')) {
-          data = await response.json();
-        } else {
-          const text = await response.text();
-          console.error('Non-JSON response:', text.substring(0, 200));
-          setError('Server error: Invalid response format. Please check your authentication.');
+        const responseText = await response.text();
+        console.log('Raw response:', responseText.substring(0, 300));
+
+        if (!contentType?.includes('application/json')) {
+          console.error('Non-JSON content-type:', contentType);
+          console.error('Response body:', responseText);
+          setError(`Server error (${response.status}): Expected JSON response. ${responseText.substring(0, 100)}`);
           setImagePreview(profile?.profile_photo || null);
           return;
         }
+
+        data = JSON.parse(responseText);
+        console.log('Parsed response:', data);
       } catch (parseErr) {
-        console.error('JSON parse error:', parseErr);
-        setError('Failed to parse server response. Please try again.');
+        console.error('Response parsing error:', parseErr);
+        setError('Server error: Invalid response format. Please try again.');
         setImagePreview(profile?.profile_photo || null);
         return;
       }
 
       if (response.ok && data?.success) {
-        // Update profile with returned photo URL
-        const photoUrl = data.photo_url || data.data?.profile_photo;
+        const photoUrl = data.photo_url || data.data?.profile_photo || data.data?.profile_photo_url;
+        console.log('Photo URL:', photoUrl);
+
         if (profile) {
           setProfile({ ...profile, profile_photo: photoUrl });
         }
         setEditData({ ...editData, profile_photo: photoUrl });
       } else {
-        const errorMsg = data?.message || 'Failed to upload image';
+        const errorMsg = data?.message || `Upload failed (${response.status})`;
+        console.error('Upload error response:', data);
         setError(errorMsg);
-        console.error('Upload failed:', data);
-        // Reset preview on error
         setImagePreview(profile?.profile_photo || null);
       }
     } catch (err: any) {

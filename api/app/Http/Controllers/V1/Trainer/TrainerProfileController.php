@@ -89,23 +89,77 @@ class TrainerProfileController extends Controller
     public function uploadPhoto(Request $request): JsonResponse
     {
         try {
-            $request->validate(['photo' => 'required|image|max:2048']);
+            // Validate request
+            $validated = $request->validate([
+                'photo' => 'required|image|max:2048',
+            ]);
 
-            $trainer = $request->user()->trainer();
+            // Get authenticated user's trainer profile
+            $user = $request->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated',
+                ], 401);
+            }
 
-            if ($trainer->profile_photo_url) {
+            $trainer = $user->trainer();
+            if (!$trainer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Trainer profile not found',
+                ], 404);
+            }
+
+            // Delete old photo if exists
+            if ($trainer->profile_photo_url && Storage::disk('public')->exists($trainer->profile_photo_url)) {
                 Storage::disk('public')->delete($trainer->profile_photo_url);
             }
 
-            $path = $request->file('photo')->store('trainer-profiles', 'public');
+            // Store new photo
+            $file = $request->file('photo');
+            if (!$file) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No file uploaded',
+                ], 400);
+            }
+
+            $path = $file->store('trainer-profiles', 'public');
+            if (!$path) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to store file',
+                ], 500);
+            }
+
+            // Update trainer record
             $trainer->update(['profile_photo_url' => $path]);
 
+            // Return success response
             return response()->json([
                 'success' => true,
                 'message' => 'Photo uploaded successfully',
                 'photo_url' => asset('storage/' . $path),
-            ]);
+                'data' => [
+                    'profile_photo_url' => $path,
+                    'profile_photo' => asset('storage/' . $path),
+                ],
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+
         } catch (\Exception $e) {
+            \Log::error('Photo upload error: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id ?? 'unknown',
+                'exception' => $e,
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload photo: ' . $e->getMessage(),
