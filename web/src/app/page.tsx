@@ -100,22 +100,21 @@ export default function HomePage() {
             Platform is live! Join 5000+ users
           </div>
           <h1 className="text-5xl sm:text-7xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Land Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Dream Job</span>
+            Master <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Interview Skills</span> with Experts
           </h1>
           <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Practice with expert trainers, earn XP, and get hired by top tech companies. Elevate your interview skills today.
+            Book 1-on-1 mock interviews with industry experts, get real-time feedback, earn XP badges, and land offers at top tech companies worldwide.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/auth/register" className="w-full sm:w-auto">
+            <Link href="/feed" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 group">
-                Sign Up Free
+                Find Your Trainer
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="#demo" className="w-full sm:w-auto">
+            <Link href="/auth/register" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 border-2">
-                <PlayCircle className="w-5 h-5 text-gray-500" />
-                Watch Demo
+                Start Free
               </Button>
             </Link>
           </div>
@@ -126,10 +125,10 @@ export default function HomePage() {
       <section className="relative -mt-16 z-10 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <StatCounter value={50000} label="Sessions" icon={TrendingUp} />
-            <StatCounter value={500} label="Trainers" icon={Award} />
-            <StatCounter value={200} label="Companies" icon={Briefcase} />
-            <StatCounter value={5000} label="Students" icon={Users} />
+            <StatCounter value={50000} label="Mock Interviews" icon={TrendingUp} />
+            <StatCounter value={850} label="Expert Trainers" icon={Award} />
+            <StatCounter value={500} label="Companies Hiring" icon={Briefcase} />
+            <StatCounter value={15000} label="Job Placements" icon={Users} />
           </div>
         </div>
       </section>
