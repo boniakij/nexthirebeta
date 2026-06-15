@@ -1,361 +1,227 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui';
+import { Plus } from 'lucide-react';
+import PackageStatsCards from '@/components/trainer/packages/PackageStatsCards';
+import PackageFilters from '@/components/trainer/packages/PackageFilters';
+import PackageTable from '@/components/trainer/packages/PackageTable';
+import { trainerPackagesApi } from '@/lib/api/trainerPackages';
+import { TrainerPackage } from '@/types/trainerPackage';
 
-import { Card, CardBody, CardHeader, Badge, Button, Modal, Input, Spinner } from '@/components/ui';
-import { trainerApi } from '@/lib/api/trainer';
-import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
-
-interface Package {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  session_count: number;
-  duration_minutes: number;
-  interview_type: string;
-  domain: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  is_live: boolean;
-  includes_cv_review: boolean;
-  is_active: boolean;
-  total_bookings?: number;
-}
-
-function PackagesContent() {
-  const [packages, setPackages] = useState<Package[]>(getMockPackages());
-  const [showModal, setShowModal] = useState(false);
-  const [editingPackage, setEditingPackage] = useState<Package | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: 0,
-    session_count: 1,
+const MOCK_PACKAGES: TrainerPackage[] = [
+  {
+    id: 1,
+    trainer_id: 1,
+    title: 'HR Mock Interview',
+    slug: 'hr-mock-interview',
+    category: 'HR Interview',
+    target_level: 'Fresher',
+    package_type: '1:1 Live Session',
+    short_description: '45-minute structured HR interview with feedback',
+    description: 'Student will receive realistic HR interview practice, communication feedback, confidence score, and improvement tips.',
+    tags: ['HR', 'Fresher', 'Communication'],
     duration_minutes: 45,
-    interview_type: 'Technical',
-    domain: 'Software Engineering',
-    difficulty: 'intermediate' as 'beginner' | 'intermediate' | 'advanced',
-    is_live: true,
+    session_mode: 'Video Interview',
+    language: 'Bangla + English',
+    difficulty: 'beginner',
+    session_count: 1,
     includes_cv_review: false,
+    includes_written_feedback: true,
+    preparation_instructions: 'Upload your latest CV before the session',
+    price: 800,
+    discount_price: 650,
+    currency: 'BDT',
+    required_documents: {
+      resume: true,
+      linkedin_url: false,
+      github_url: false,
+      portfolio_url: false,
+      job_description: false,
+      cover_letter: false,
+    },
+    custom_questions: [],
+    availability_scope: 'all_slots',
+    status: 'active',
+    is_featured: false,
+    total_bookings: 45,
+    total_revenue: 28800,
+    created_at: '2026-06-01T00:00:00Z',
+    updated_at: '2026-06-14T00:00:00Z',
+  },
+  {
+    id: 2,
+    trainer_id: 1,
+    title: 'Frontend Technical Interview',
+    slug: 'frontend-technical-interview',
+    category: 'Technical Interview',
+    target_level: 'Junior',
+    package_type: '1:1 Live Session',
+    short_description: 'React & JavaScript focused technical interview prep',
+    description: 'Deep dive into frontend technologies with real coding problems',
+    tags: ['Frontend', 'React', 'JavaScript'],
+    duration_minutes: 60,
+    session_mode: 'Video Interview',
+    language: 'English',
+    difficulty: 'intermediate',
+    session_count: 1,
+    includes_cv_review: true,
+    includes_written_feedback: true,
+    preparation_instructions: 'Have your IDE ready',
+    price: 1200,
+    currency: 'BDT',
+    required_documents: {
+      resume: true,
+      linkedin_url: true,
+      github_url: true,
+      portfolio_url: false,
+      job_description: false,
+      cover_letter: false,
+    },
+    custom_questions: [],
+    availability_scope: 'all_slots',
+    status: 'active',
+    is_featured: true,
+    total_bookings: 31,
+    total_revenue: 33600,
+    created_at: '2026-06-02T00:00:00Z',
+    updated_at: '2026-06-14T00:00:00Z',
+  },
+  {
+    id: 3,
+    trainer_id: 1,
+    title: 'CV Review for Freshers',
+    slug: 'cv-review-freshers',
+    category: 'CV Review',
+    target_level: 'Fresher',
+    package_type: 'CV Review',
+    short_description: 'Comprehensive CV review and optimization',
+    description: 'Get your CV reviewed by an industry expert with actionable feedback',
+    tags: ['CV', 'Resume', 'Freshers'],
+    duration_minutes: 30,
+    session_mode: 'Document Review',
+    language: 'Bangla + English',
+    difficulty: 'beginner',
+    session_count: 1,
+    includes_cv_review: true,
+    includes_written_feedback: true,
+    preparation_instructions: 'Send your CV in advance',
+    price: 500,
+    currency: 'BDT',
+    required_documents: {
+      resume: true,
+      linkedin_url: false,
+      github_url: false,
+      portfolio_url: false,
+      job_description: false,
+      cover_letter: false,
+    },
+    custom_questions: [],
+    availability_scope: 'all_slots',
+    status: 'draft',
+    is_featured: false,
+    total_bookings: 0,
+    total_revenue: 0,
+    created_at: '2026-06-10T00:00:00Z',
+    updated_at: '2026-06-14T00:00:00Z',
+  },
+];
+
+export default function TrainerPackagesPage() {
+  const [packages, setPackages] = useState<TrainerPackage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    category: '',
+    sort: 'latest',
   });
 
   useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        // Try to fetch with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-        const response = await fetch('/api/v1/trainers/me/packages', {
-          signal: controller.signal,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.success && data?.data) {
-            setPackages(data.data);
-          }
-        }
-      } catch (error) {
-        console.log('Using mock packages');
-      }
-    };
-
-    // Fetch in background
     fetchPackages();
-  }, []);
+  }, [filters]);
 
-  const handleCreate = () => {
-    setEditingPackage(null);
-    setFormData({
-      title: '',
-      description: '',
-      price: 0,
-      session_count: 1,
-      duration_minutes: 45,
-      interview_type: 'Technical',
-      domain: 'Software Engineering',
-      difficulty: 'intermediate',
-      is_live: true,
-      includes_cv_review: false,
-    });
-    setShowModal(true);
-  };
-
-  const handleEdit = (pkg: Package) => {
-    setEditingPackage(pkg);
-    setFormData({
-      title: pkg.title,
-      description: pkg.description,
-      price: pkg.price,
-      session_count: pkg.session_count,
-      duration_minutes: pkg.duration_minutes,
-      interview_type: pkg.interview_type,
-      domain: pkg.domain,
-      difficulty: pkg.difficulty,
-      is_live: pkg.is_live,
-      includes_cv_review: pkg.includes_cv_review,
-    });
-    setShowModal(true);
-  };
-
-  const handleSave = async () => {
+  const fetchPackages = async () => {
+    setLoading(true);
     try {
-      if (editingPackage) {
-        // Update existing package
-        await trainerApi.updatePackage(editingPackage.id, formData);
-      } else {
-        // Create new package
-        await trainerApi.createPackage(formData);
-      }
-      setShowModal(false);
-      // Refresh packages
+      const response = await trainerPackagesApi.listPackages({
+        search: filters.search,
+        status: filters.status,
+        sort: filters.sort,
+      });
+      setPackages(response.data.data.packages || []);
     } catch (error) {
-      console.error('Failed to save package:', error);
+      console.error('Failed to fetch packages:', error);
+      setPackages(MOCK_PACKAGES);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this package?')) {
-      try {
-        await trainerApi.deletePackage(id);
-        setPackages(packages.filter((p) => p.id !== id));
-      } catch (error) {
-        console.error('Failed to delete package:', error);
-      }
-    }
-  };
-
-  const handleToggleActive = async (pkg: Package) => {
+  const handleDuplicate = async (id: number) => {
     try {
-      await trainerApi.updatePackage(pkg.id, { is_active: !pkg.is_active });
-      setPackages(
-        packages.map((p) => (p.id === pkg.id ? { ...p, is_active: !p.is_active } : p))
-      );
+      const response = await trainerPackagesApi.duplicatePackage(id);
+      if (response.data.success) {
+        fetchPackages();
+      }
     } catch (error) {
-      console.error('Failed to toggle package:', error);
+      console.error('Failed to duplicate package:', error);
     }
+  };
+
+  const stats = {
+    active: packages.filter((p) => p.status === 'active').length,
+    draft: packages.filter((p) => p.status === 'draft').length,
+    bookings: packages.reduce((sum, p) => sum + p.total_bookings, 0),
+    revenue: packages.reduce((sum, p) => sum + p.total_revenue, 0),
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">📦 My Packages</h1>
-        <Button onClick={handleCreate} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Create Package
-        </Button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Trainer Packages</h1>
+          <p className="text-gray-600 mt-1">
+            Create, manage, publish, hide, or deactivate your interview packages.
+          </p>
+        </div>
+        <Link href="/trainer/packages/create">
+          <Button className="gap-2">
+            <Plus className="w-4 h-4" />
+            Create Package
+          </Button>
+        </Link>
       </div>
 
-      {packages.length > 0 ? (
-        <div className="space-y-4">
-          {packages.map((pkg) => (
-            <Card key={pkg.id} className={!pkg.is_active ? 'opacity-60' : ''}>
-              <CardBody>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900">{pkg.title}</h3>
-                    <p className="text-gray-600 mt-1">{pkg.description}</p>
+      {/* Stats */}
+      <PackageStatsCards
+        activeCount={stats.active}
+        draftCount={stats.draft}
+        totalBookings={stats.bookings}
+        revenue={stats.revenue}
+      />
 
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <Badge variant="primary">{pkg.interview_type}</Badge>
-                      <Badge variant="purple">{pkg.domain}</Badge>
-                      <Badge
-                        variant={
-                          pkg.difficulty === 'advanced'
-                            ? 'danger'
-                            : pkg.difficulty === 'intermediate'
-                              ? 'warning'
-                              : 'success'
-                        }
-                      >
-                        {pkg.difficulty}
-                      </Badge>
-                    </div>
+      {/* Filters */}
+      <PackageFilters
+        onSearch={(search) => setFilters({ ...filters, search })}
+        onStatusChange={(status) => setFilters({ ...filters, status })}
+        onCategoryChange={(category) => setFilters({ ...filters, category })}
+        onSortChange={(sort) => setFilters({ ...filters, sort })}
+      />
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-200">
-                      <div>
-                        <p className="text-xs text-gray-600">Sessions</p>
-                        <p className="font-bold text-gray-900">{pkg.session_count}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600">Duration</p>
-                        <p className="font-bold text-gray-900">{pkg.duration_minutes}m</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600">CV Review</p>
-                        <p className="font-bold text-gray-900">{pkg.includes_cv_review ? '✓' : '✗'}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600">Bookings</p>
-                        <p className="font-bold text-gray-900">{pkg.total_bookings || 0}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 items-end">
-                    <p className="text-2xl font-bold text-primary-600">৳{pkg.price}</p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleToggleActive(pkg)}
-                        className="p-2 hover:bg-gray-100 rounded-btn transition"
-                      >
-                        {pkg.is_active ? (
-                          <ToggleRight className="w-5 h-5 text-success-500" />
-                        ) : (
-                          <ToggleLeft className="w-5 h-5 text-gray-400" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleEdit(pkg)}
-                        className="p-2 hover:bg-gray-100 rounded-btn transition"
-                      >
-                        <Edit2 className="w-5 h-5 text-primary-600" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(pkg.id)}
-                        className="p-2 hover:bg-gray-100 rounded-btn transition"
-                      >
-                        <Trash2 className="w-5 h-5 text-danger-600" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardBody className="text-center py-12">
-            <p className="text-gray-600 mb-4">No packages yet. Create your first package!</p>
-            <Button onClick={handleCreate}>Create Package</Button>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Package Modal */}
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title={editingPackage ? 'Edit Package' : 'Create Package'}
-      >
-        <div className="space-y-4">
-          <Input
-            label="Title"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="e.g., System Design Mastery"
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe what students will learn..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600"
-              rows={3}
-            />
+      {/* Package List */}
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">My Packages</h2>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Loading packages...</p>
           </div>
-          <Input
-            label="Price (BDT)"
-            type="number"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
-          />
-          <Input
-            label="Number of Sessions"
-            type="number"
-            min="1"
-            max="10"
-            value={formData.session_count}
-            onChange={(e) => setFormData({ ...formData, session_count: parseInt(e.target.value) })}
-          />
-          <select
-            value={formData.duration_minutes}
-            onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-btn focus:outline-none focus:ring-2 focus:ring-primary-600"
-          >
-            <option value={30}>30 minutes</option>
-            <option value={45}>45 minutes</option>
-            <option value={60}>60 minutes</option>
-          </select>
-
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.is_live}
-                onChange={(e) => setFormData({ ...formData, is_live: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <span className="text-sm text-gray-700">Live Sessions</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.includes_cv_review}
-                onChange={(e) => setFormData({ ...formData, includes_cv_review: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <span className="text-sm text-gray-700">Includes CV Review</span>
-            </label>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSave} variant="primary" className="flex-1">
-              {editingPackage ? 'Update' : 'Create'} Package
-            </Button>
-            <Button onClick={() => setShowModal(false)} variant="outline" className="flex-1">
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        ) : (
+          <PackageTable packages={packages} onDuplicate={handleDuplicate} onHide={() => {}} />
+        )}
+      </div>
     </div>
   );
-}
-
-export default function PackagesPage() {
-  return <PackagesContent />;
-}
-
-function getMockPackages(): Package[] {
-  return [
-    {
-      id: 1,
-      title: 'System Design Mastery (3 Sessions)',
-      description: 'Deep dive into system design patterns and real-world scenarios',
-      price: 1500,
-      session_count: 3,
-      duration_minutes: 60,
-      interview_type: 'System Design',
-      domain: 'Software Engineering',
-      difficulty: 'advanced',
-      is_live: true,
-      includes_cv_review: true,
-      is_active: true,
-      total_bookings: 45,
-    },
-    {
-      id: 2,
-      title: 'Technical Interview Prep (5 Sessions)',
-      description: 'Comprehensive technical interview preparation',
-      price: 2000,
-      session_count: 5,
-      duration_minutes: 45,
-      interview_type: 'Technical',
-      domain: 'Software Engineering',
-      difficulty: 'intermediate',
-      is_live: true,
-      includes_cv_review: true,
-      is_active: true,
-      total_bookings: 67,
-    },
-  ];
 }

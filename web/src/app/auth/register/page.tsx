@@ -29,7 +29,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 import { useSearchParams } from 'next/navigation';
 
-export default function RegisterPageContent() {
+export function RegisterPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const defaultRole = (searchParams.get('role') as 'student' | 'trainer' | 'company') || 'student';
