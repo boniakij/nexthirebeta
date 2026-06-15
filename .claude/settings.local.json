@@ -126,7 +126,10 @@
       "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/feed/packages)",
       "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/feed/featured)",
       "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/feed/categories)",
-      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/feed/countries)"
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/feed/countries)",
+      "Bash(curl -s -o /dev/null -w \"Admin Dashboard Status: %{http_code}\\\\n\" http://localhost:3000/admin)",
+      "Bash(curl -s -o /dev/null -w \"Feed Management Status: %{http_code}\\\\n\" http://localhost:3000/admin/feed)",
+      "Bash(curl -s -o /dev/null -w \"Feed Packages Status: %{http_code}\\\\n\" http://localhost:3000/admin/feed/packages)"
     ]
   }
 }
