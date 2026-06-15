@@ -77,7 +77,13 @@ function TrainerProfileContent() {
     ],
   };
 
-  const displayTrainer = trainer || mockTrainer;
+  const displayTrainer = trainer ? {
+    ...mockTrainer,
+    ...trainer,
+    certifications: trainer.certifications && Array.isArray(trainer.certifications) ? trainer.certifications : [],
+    packages: trainer.packages && Array.isArray(trainer.packages) ? trainer.packages : mockTrainer.packages,
+    expertise_domains: trainer.expertise_domains && Array.isArray(trainer.expertise_domains) ? trainer.expertise_domains : mockTrainer.expertise_domains,
+  } : mockTrainer;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
