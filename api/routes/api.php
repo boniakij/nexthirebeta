@@ -26,6 +26,12 @@ use App\Http\Controllers\V1\Trainer\TrainerWeeklyScheduleController;
 use App\Http\Controllers\V1\Trainer\TrainerBookingRuleController;
 use App\Http\Controllers\V1\Admin\CommissionSettingController;
 use App\Http\Controllers\V1\Admin\WithdrawalController as AdminWithdrawalController;
+use App\Http\Controllers\V1\PublicBadgeController;
+use App\Http\Controllers\V1\Student\XPController as StudentXPController;
+use App\Http\Controllers\V1\Student\BadgeController as StudentBadgeController;
+use App\Http\Controllers\V1\Admin\GamificationXPController;
+use App\Http\Controllers\V1\Admin\GamificationBadgeController;
+use App\Http\Controllers\V1\Admin\XPAdjustmentController;
 
 Route::prefix('v1')->group(function () {
 
@@ -45,6 +51,15 @@ Route::prefix('v1')->group(function () {
 
     // Public Student Routes
     Route::get('students/{id}/public', [StudentController::class, 'publicProfile']);
+
+    // Public Badges Routes
+    Route::get('badges', [PublicBadgeController::class, 'index']);
+    Route::get('badges/{category}', [PublicBadgeController::class, 'byCategory']);
+    Route::get('badges/{badge}', [PublicBadgeController::class, 'show']);
+
+    // Public Leaderboard Routes
+    Route::get('leaderboard/global', [LeaderboardController::class, 'global']);
+    Route::get('leaderboard/country/{code}', [LeaderboardController::class, 'country']);
 
     // Public Trainer Routes
     Route::get('trainers', [TrainerController::class, 'index']);
@@ -148,6 +163,13 @@ Route::prefix('v1')->group(function () {
             Route::put('me/achievements/{id}', [TrainerAchievementController::class, 'update']);
             Route::delete('me/achievements/{id}', [TrainerAchievementController::class, 'destroy']);
 
+            // Interview Packages Routes
+            Route::get('me/packages', [\App\Http\Controllers\V1\Trainer\InterviewPackageController::class, 'index']);
+            Route::post('me/packages', [\App\Http\Controllers\V1\Trainer\InterviewPackageController::class, 'create']);
+            Route::get('me/packages/{id}', [\App\Http\Controllers\V1\Trainer\InterviewPackageController::class, 'show']);
+            Route::put('me/packages/{id}', [\App\Http\Controllers\V1\Trainer\InterviewPackageController::class, 'update']);
+            Route::delete('me/packages/{id}', [\App\Http\Controllers\V1\Trainer\InterviewPackageController::class, 'delete']);
+
             // Availability Routes
             Route::get('me/availability/calendar', [TrainerAvailabilityController::class, 'calendar']);
             Route::post('me/availability/slots', [TrainerAvailabilityController::class, 'addSlot']);
@@ -191,21 +213,52 @@ Route::prefix('v1')->group(function () {
             Route::post('{id}/complete', [InterviewController::class, 'complete']);
         });
 
-        // Gamification Routes
-        Route::prefix('badges')->group(function () {
-            Route::get('me', [BadgeController::class, 'myBadges']);
+        // Student Gamification Routes
+        Route::prefix('students/me')->group(function () {
+            Route::get('xp-summary', [StudentXPController::class, 'summary']);
+            Route::get('xp-history', [StudentXPController::class, 'history']);
+            Route::get('badges', [StudentBadgeController::class, 'index']);
+            Route::get('badges/{badge}', [StudentBadgeController::class, 'show']);
         });
 
-        Route::prefix('leaderboard')->group(function () {
-            Route::get('me/rank', [LeaderboardController::class, 'myRank']);
+        // Trainer Gamification Routes
+        Route::prefix('trainers/me')->group(function () {
+            Route::get('xp-summary', [XPController::class, 'summary']);
+            Route::get('xp-history', [XPController::class, 'history']);
+            Route::get('badges', [XPController::class, 'badges']);
         });
 
-        Route::prefix('xp')->group(function () {
-            Route::get('progress', [XPController::class, 'myProgress']);
-        });
+        // Trainer Public Routes
+        Route::get('trainers/{trainer}/badges', [XPController::class, 'trainerBadges']);
+
+        // Leaderboard Personal Rank
+        Route::get('leaderboard/me/rank', [LeaderboardController::class, 'myRank']);
 
         // Admin Routes (protected by admin middleware)
         Route::middleware('admin')->group(function () {
+            // Gamification Management Routes
+            Route::prefix('admin')->group(function () {
+                // XP Rules Management
+                Route::get('xp-rules', [GamificationXPController::class, 'listRules']);
+                Route::post('xp-rules', [GamificationXPController::class, 'createRule']);
+                Route::put('xp-rules/{rule}', [GamificationXPController::class, 'updateRule']);
+                Route::delete('xp-rules/{rule}', [GamificationXPController::class, 'deleteRule']);
+
+                // Badge Management
+                Route::get('badges', [GamificationBadgeController::class, 'index']);
+                Route::post('badges', [GamificationBadgeController::class, 'store']);
+                Route::get('badges/{badge}', [GamificationBadgeController::class, 'show']);
+                Route::put('badges/{badge}', [GamificationBadgeController::class, 'update']);
+                Route::delete('badges/{badge}', [GamificationBadgeController::class, 'destroy']);
+                Route::patch('badges/{badge}/activate', [GamificationBadgeController::class, 'activate']);
+                Route::patch('badges/{badge}/deactivate', [GamificationBadgeController::class, 'deactivate']);
+
+                // XP Adjustments
+                Route::post('xp-adjustments', [XPAdjustmentController::class, 'adjustXP']);
+                Route::get('xp-adjustments/user/{userId}', [XPAdjustmentController::class, 'getAdjustmentHistory']);
+                Route::post('xp-adjustments/{ledgerId}/reverse', [XPAdjustmentController::class, 'reverseAdjustment']);
+            });
+
             Route::get('admin/trainers/pending-review', [TrainerProfileAdminController::class, 'getPendingReviews']);
             Route::patch('admin/trainers/{trainerId}/approve', [TrainerProfileAdminController::class, 'approveProfile']);
             Route::patch('admin/trainers/{trainerId}/reject', [TrainerProfileAdminController::class, 'rejectProfile']);

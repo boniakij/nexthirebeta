@@ -7,57 +7,6 @@ Complete list of all trainer endpoints available on the platform.
 http://localhost:8001/api/v1
 ```
 
----
-
-## Quick API Reference
-
-| Category | Method | Endpoint | Purpose |
-|----------|--------|----------|---------|
-| **Profile** | GET | /trainers/me | Get profile |
-| | PUT | /trainers/me | Update profile |
-| | GET | /trainers/me/profile | Get profile details |
-| | POST | /trainers/me/profile | Update profile info |
-| | POST | /trainers/me/profile/photo | Upload profile photo |
-| | POST | /trainers/me/profile/submit-review | Submit for review |
-| **Skills** | GET | /trainers/me/skills | List skills |
-| | POST | /trainers/me/skills | Add skill |
-| | PUT | /trainers/me/skills/{id} | Update skill |
-| | DELETE | /trainers/me/skills/{id} | Delete skill |
-| **Experience** | GET | /trainers/me/experiences | List experiences |
-| | POST | /trainers/me/experiences | Add experience |
-| | PUT | /trainers/me/experiences/{id} | Update experience |
-| | DELETE | /trainers/me/experiences/{id} | Delete experience |
-| **Education** | GET | /trainers/me/educations | List educations |
-| | POST | /trainers/me/educations | Add education |
-| | PUT | /trainers/me/educations/{id} | Update education |
-| | DELETE | /trainers/me/educations/{id} | Delete education |
-| **Certifications** | GET | /trainers/me/certifications | List certifications |
-| | POST | /trainers/me/certifications | Add certification |
-| | PUT | /trainers/me/certifications/{id} | Update certification |
-| | DELETE | /trainers/me/certifications/{id} | Delete certification |
-| **Achievements** | GET | /trainers/me/achievements | List achievements |
-| | POST | /trainers/me/achievements | Add achievement |
-| | PUT | /trainers/me/achievements/{id} | Update achievement |
-| | DELETE | /trainers/me/achievements/{id} | Delete achievement |
-| **Dashboard** | GET | /trainers/me/dashboard | Dashboard data |
-| | GET | /trainers/me/earnings | Earnings data |
-| | GET | /trainers/me/sessions | Sessions list |
-| **Availability** | POST | /trainers/me/availability | Set availability |
-| **Evaluations** | POST | /trainers/me/evaluations/{id} | Submit evaluation |
-| **Wallet** | GET | /trainers/me/wallet | Wallet balance |
-| **Withdrawals** | GET | /trainers/me/withdrawals | Withdrawal list |
-| | POST | /trainers/me/withdrawals | Request withdrawal |
-| **Payout Methods** | GET | /trainers/me/payout-methods | List payout methods |
-| | POST | /trainers/me/payout-methods | Add payout method |
-| | PUT | /trainers/me/payout-methods/{id} | Update payout method |
-| | DELETE | /trainers/me/payout-methods/{id} | Delete payout method |
-| **Public** | GET | /trainers | List all trainers |
-| | GET | /trainers/{id} | Get trainer profile |
-| | GET | /trainers/{id}/availability | Get availability |
-| | GET | /trainers/{id}/profile | Get public profile |
-
----
-
 ## Authentication
 All endpoints (except public routes) require JWT Bearer token:
 ```
@@ -720,5 +669,5 @@ All timestamps in UTC ISO 8601 format.
 
 
 list of api 
-
-1 . trainer auth 
+====================
+auth

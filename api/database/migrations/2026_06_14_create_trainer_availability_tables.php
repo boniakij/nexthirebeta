@@ -36,7 +36,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->integer('slot_duration_minutes')->default(60);
             $table->enum('status', ['available', 'reserved', 'booked', 'blocked', 'expired', 'cancelled', 'unavailable'])->default('available');
-            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('set null');
+            $table->foreignId('booking_id')->nullable()->constrained('interview_bookings')->nullOnDelete();
             $table->dateTime('reserved_until')->nullable();
             $table->timestamps();
 

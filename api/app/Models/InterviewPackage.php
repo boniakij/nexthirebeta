@@ -37,6 +37,15 @@ class InterviewPackage extends Model
         'includes_career_guideline',
         'includes_mock_interview',
         'status',
+        'target_level',
+        'tags',
+        'session_mode',
+        'includes_written_feedback',
+        'preparation_instructions',
+        'currency',
+        'required_documents',
+        'custom_questions',
+        'availability_scope',
     ];
 
     protected $casts = [
@@ -47,6 +56,10 @@ class InterviewPackage extends Model
         'includes_mock_interview' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
+        'tags' => 'array',
+        'required_documents' => 'array',
+        'custom_questions' => 'array',
+        'includes_written_feedback' => 'boolean',
     ];
 
     public function trainer(): BelongsTo

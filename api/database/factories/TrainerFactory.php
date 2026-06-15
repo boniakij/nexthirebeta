@@ -45,8 +45,6 @@ class TrainerFactory extends Factory
             'bio' => fake()->paragraph(),
             'expertise_domains' => fake()->randomElement($expertise),
             'years_experience' => fake()->numberBetween(2, 15),
-            'certifications' => fake()->randomElement($certifications),
-            'company_experience' => fake()->randomElement($companies),
             'hourly_rate' => fake()->numberBetween(30, 100),
             'average_rating' => fake()->numberBetween(40, 50) / 10,
             'total_reviews' => fake()->numberBetween(5, 100),

@@ -6,24 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserBadge extends Model
+class BadgeProgress extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_badges';
+    protected $table = 'badge_progress';
 
     protected $fillable = [
         'user_id',
         'badge_id',
-        'role',
-        'student_id',
-        'trainer_id',
-        'unlocked_at',
-        'xp_awarded',
+        'current_value',
+        'target_value',
+        'is_completed',
+        'last_checked_at',
     ];
 
     protected $casts = [
-        'unlocked_at' => 'datetime',
+        'is_completed' => 'boolean',
+        'last_checked_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -41,8 +41,8 @@ class UserBadge extends Model
         return $query->where('user_id', $userId);
     }
 
-    public function scopeByBadge($query, $badgeId)
+    public function scopeIncomplete($query)
     {
-        return $query->where('badge_id', $badgeId);
+        return $query->where('is_completed', false);
     }
 }

@@ -18,30 +18,66 @@ class InterviewPackageController extends Controller
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
                 'category' => 'required|string',
-                'interview_type' => 'required|string',
-                'difficulty_level' => 'required|in:beginner,intermediate,advanced,expert',
-                'language' => 'required|string',
+                'target_level' => 'required|string',
+                'package_type' => 'required|string',
                 'short_description' => 'required|string|max:500',
                 'description' => 'required|string',
-                'number_of_sessions' => 'required|integer|min:1',
+                'tags' => 'nullable|array',
+                'duration_minutes' => 'required|integer|min:15',
+                'session_mode' => 'required|string',
+                'language' => 'required|string',
+                'difficulty' => 'required|in:beginner,intermediate,advanced,expert',
+                'session_count' => 'required|integer|min:1',
+                'includes_cv_review' => 'boolean',
+                'includes_written_feedback' => 'boolean',
+                'preparation_instructions' => 'nullable|string',
                 'price' => 'required|numeric|min:0',
                 'discount_price' => 'nullable|numeric|min:0',
-                'session_duration' => 'required|integer|min:15',
-                'package_validity' => 'required|integer|min:7',
-                'max_students' => 'required|integer|min:1',
-                'session_type' => 'required|in:one_to_one,group',
-                'days_of_week' => 'required|array',
-                'session_time' => 'required|string',
-                'timezone' => 'required|string',
-                'start_date' => 'required|date',
-                'end_date' => 'nullable|date|after:start_date',
-                'repeat_weekly' => 'boolean',
-                'includes_cv_review' => 'boolean',
-                'includes_career_guideline' => 'boolean',
-                'includes_mock_interview' => 'boolean',
+                'currency' => 'required|string',
+                'required_documents' => 'nullable|array',
+                'custom_questions' => 'nullable|array',
+                'availability_scope' => 'required|string',
+                'status' => 'required|in:draft,pending_review,active,paused,archived',
             ]);
 
-            $package = $this->service->createPackage(auth()->user()->trainer, $validated);
+            // Map frontend payload to database columns
+            $packageData = [
+                'title' => $validated['title'],
+                'category' => $validated['category'],
+                'interview_type' => $validated['package_type'], // mapped
+                'difficulty_level' => $validated['difficulty'], // mapped
+                'language' => $validated['language'],
+                'short_description' => $validated['short_description'],
+                'description' => $validated['description'],
+                'number_of_sessions' => $validated['session_count'], // mapped
+                'price' => $validated['price'],
+                'discount_price' => $validated['discount_price'] ?? null,
+                'session_duration' => $validated['duration_minutes'], // mapped
+                'package_validity' => 90, // default
+                'max_students' => 1, // default for 1:1
+                'session_type' => 'one_to_one', // default
+                'days_of_week' => [], // default
+                'session_time' => '00:00', // default
+                'timezone' => 'UTC', // default
+                'start_date' => now(), // default
+                'includes_cv_review' => $validated['includes_cv_review'] ?? false,
+                'includes_career_guideline' => false,
+                'includes_mock_interview' => true,
+                'status' => $validated['status'],
+                
+                // New flexible booking fields:
+                'target_level' => $validated['target_level'],
+                'tags' => $validated['tags'] ?? [],
+                'session_mode' => $validated['session_mode'],
+                'includes_written_feedback' => $validated['includes_written_feedback'] ?? false,
+                'preparation_instructions' => $validated['preparation_instructions'] ?? null,
+                'currency' => $validated['currency'],
+                'required_documents' => $validated['required_documents'] ?? [],
+                'custom_questions' => $validated['custom_questions'] ?? [],
+                'availability_scope' => $validated['availability_scope'],
+            ];
+
+            $package = $this->service->createPackage(auth()->user()->trainer, $packageData);
 
             return response()->json([
                 'success' => true,

@@ -146,7 +146,17 @@
       "Bash(curl -s http://localhost:3000/trainer/packages/3/edit)",
       "Bash(curl -I http://localhost:3000/trainer/packages/3/edit)",
       "Bash(curl -s \"http://localhost:3000/trainer/packages/create\")",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(curl -X POST http://localhost:8000/api/v1/trainers/me/packages -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJpYXQiOjE3ODE1MjQxNzEsImV4cCI6MTc4MTUyNTA3MSwibmJmIjoxNzgxNTI0MTcxLCJqdGkiOiI3emdOZ2F4blF3T0I1eFgyIiwic3ViIjoiNyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.uQw4QgVyKU5Y_M-8dDmvZFCuQ7bA-s__hK9VJs6yBSQ' -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJpYXQiOjE3ODE1MjQxNzEsImV4cCI6MTc4MTUyNTA3MSwibmJmIjoxNzgxNTI0MTcxLCJqdGkiOiI3emdOZ2F4blF3T0I1eFgyIiwic3ViIjoiNyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.uQw4QgVyKU5Y_M-8dDmvZFCuQ7bA-s__hK9VJs6yBSQ' http://localhost:8000/api/v1/trainers/me)",
+      "Bash(pkill -f \"php artisan serve\")",
+      "Bash(curl -s http://localhost:8000/up)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(curl -s http://localhost:8000/api/v1/badges)",
+      "Bash(pkill -9 -f \"php artisan\")",
+      "Bash(lsof *)",
+      "Bash(curl -s http://localhost:9000/api/v1/badges)"
     ]
   }
 }

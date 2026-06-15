@@ -6,24 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserBadge extends Model
+class UserGamificationStats extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_badges';
+    protected $table = 'user_gamification_stats';
 
     protected $fillable = [
         'user_id',
-        'badge_id',
         'role',
-        'student_id',
-        'trainer_id',
-        'unlocked_at',
-        'xp_awarded',
+        'total_xp',
+        'current_level',
+        'badges_count',
+        'country_rank',
+        'global_rank',
+        'streak_days',
+        'last_login_date',
     ];
 
     protected $casts = [
-        'unlocked_at' => 'datetime',
+        'last_login_date' => 'date',
     ];
 
     public function user(): BelongsTo
@@ -31,18 +33,13 @@ class UserBadge extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function badge(): BelongsTo
-    {
-        return $this->belongsTo(Badge::class);
-    }
-
     public function scopeByUser($query, $userId)
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeByBadge($query, $badgeId)
+    public function scopeTopRanked($query, $limit = 100)
     {
-        return $query->where('badge_id', $badgeId);
+        return $query->orderBy('total_xp', 'desc')->limit($limit);
     }
 }

@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button, Card, Badge, StarRating, Avatar } from '@/components/ui';
 import { Navbar } from '@/components/layout/Navbar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { ArrowRight, PlayCircle, CheckCircle2, TrendingUp, Users, Briefcase, Award } from 'lucide-react';
+import { ArrowRight, PlayCircle, CheckCircle2, TrendingUp, Users, Briefcase, Award, Clock } from 'lucide-react';
 
 const StatCounter = ({ value, label, icon: Icon }: { value: number; label: string, icon: any }) => {
   const [count, setCount] = useState(0);
@@ -89,34 +90,54 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-purple-50 pt-20 pb-24 sm:pt-32 sm:pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-purple-50 pt-28 pb-32 sm:pt-32 sm:pb-40">
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-            </span>
-            Platform is live! Join 5000+ users
-          </div>
-          <h1 className="text-5xl sm:text-7xl font-extrabold text-gray-900 mb-6 tracking-tight">
-            Master <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Interview Skills</span> with Experts
-          </h1>
-          <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Book 1-on-1 mock interviews with industry experts, get real-time feedback, earn XP badges, and land offers at top tech companies worldwide.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/feed" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 group">
-                Find Your Trainer
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link href="/auth/register" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 border-2">
-                Start Free
-              </Button>
-            </Link>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left Column - Text */}
+            <div className="text-center lg:text-left relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-6 mx-auto lg:mx-0">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                </span>
+                Platform is live! Join 5000+ users
+              </div>
+              <h1 className="text-5xl sm:text-6xl xl:text-7xl font-extrabold text-gray-900 mb-6 tracking-tight leading-tight">
+                Master <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Interview Skills</span> with Experts
+              </h1>
+              <p className="text-xl sm:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Book 1-on-1 mock interviews with industry experts, get real-time feedback, earn XP badges, and land offers at top tech companies worldwide.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+                <Link href="/feed" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 group shadow-xl shadow-primary-500/20">
+                    Find Your Trainer
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link href="/auth/register" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 gap-2 border-2 bg-white hover:bg-gray-50">
+                    Start Free
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Right Column - Image */}
+            <div className="relative hidden lg:block">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary-400 to-purple-400 rounded-full blur-3xl opacity-20"></div>
+              <div className="relative z-10 transform hover:-translate-y-2 transition-transform duration-500 ease-out">
+                <Image 
+                  src="/hero-illustration.png" 
+                  alt="Mock Interview Mentorship" 
+                  width={800} 
+                  height={800} 
+                  className="w-full h-auto drop-shadow-2xl rounded-[2rem] border-8 border-white shadow-2xl object-cover"
+                  priority
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -147,6 +168,64 @@ export default function HomePage() {
           <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center gap-16 py-4">
             {['Google', 'Microsoft', 'Amazon', 'Netflix', 'Meta', 'Apple', 'Spotify', 'Uber', 'Airbnb'].map((company, idx) => (
               <span key={idx} className="text-2xl font-bold text-gray-400 mx-8">{company}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Premium Features Block */}
+      <section className="py-24 bg-gray-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10 [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[100px] mix-blend-screen pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-sm font-bold text-primary-400 tracking-wide uppercase mb-2">Why Choose NextHire</h2>
+            <h3 className="text-3xl sm:text-5xl font-bold mb-4">Everything you need to land the offer</h3>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">Our platform combines real-world expertise with powerful tools to ensure you are 100% prepared for your next big interview.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Users className="w-6 h-6" />,
+                title: 'Top Tier Experts',
+                desc: 'Practice with engineers and managers currently working at FAANG and top unicorns.'
+              },
+              {
+                icon: <CheckCircle2 className="w-6 h-6" />,
+                title: 'Actionable Feedback',
+                desc: 'Receive detailed performance reports highlighting your strengths and areas for improvement.'
+              },
+              {
+                icon: <StarRating rating={5} size="sm" className="opacity-80" />,
+                title: 'Verified Profiles',
+                desc: 'Every trainer is vetted, and their reviews are public to ensure the highest quality mentorship.'
+              },
+              {
+                icon: <TrendingUp className="w-6 h-6" />,
+                title: 'Gamified Learning',
+                desc: 'Earn XP, unlock achievements, and climb the leaderboard as you complete sessions.'
+              },
+              {
+                icon: <Briefcase className="w-6 h-6" />,
+                title: 'Direct Hiring',
+                desc: 'Top performers get noticed! Companies use our leaderboard to directly recruit top talent.'
+              },
+              {
+                icon: <Clock className="w-6 h-6" />,
+                title: 'Flexible Scheduling',
+                desc: 'Find time slots that work for you, across any timezone, with instant automated booking.'
+              }
+            ].map((feature, i) => (
+              <div key={i} className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-colors duration-300 group">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary-500/20 to-purple-500/20 text-primary-300 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-inner border border-white/5">
+                  {feature.icon}
+                </div>
+                <h4 className="text-xl font-bold mb-3">{feature.title}</h4>
+                <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -191,6 +270,59 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interview Packages Section */}
+      <section className="py-24 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-end mb-12 gap-4">
+            <div>
+              <h2 className="text-sm font-bold text-primary-600 tracking-wide uppercase mb-2">Courses</h2>
+              <h3 className="text-3xl sm:text-5xl font-bold text-gray-900">Interview Packages</h3>
+            </div>
+            <Link href="/packages">
+              <Button variant="outline" className="hidden sm:flex gap-2">
+                View All Packages <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {packages.map((pkg) => (
+              <Card key={pkg.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-gray-200 flex flex-col h-full group">
+                <div className="p-6 flex-1">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="primary" className="text-xs capitalize">
+                      {pkg.difficulty_level}
+                    </Badge>
+                    <span className="text-xs text-gray-500">⏱️ {pkg.duration}</span>
+                  </div>
+                  <h4 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
+                    {pkg.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {pkg.description || 'Professional interview preparation with personalized feedback'}
+                  </p>
+                </div>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between mt-auto">
+                  <div className="font-bold text-gray-900 text-lg">
+                    ৳{pkg.price?.toLocaleString()}
+                  </div>
+                  <Link href={`/packages/${pkg.id}`}>
+                    <Button size="sm">View Package</Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-8 text-center sm:hidden">
+            <Link href="/packages">
+              <Button variant="outline" className="w-full gap-2">
+                View All Packages <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -267,59 +399,6 @@ export default function HomePage() {
               Become a Trainer
             </Button>
           </Link>
-        </div>
-      </section>
-
-      {/* Interview Packages Section */}
-      <section className="py-24 bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-end mb-12 gap-4">
-            <div>
-              <h2 className="text-sm font-bold text-primary-600 tracking-wide uppercase mb-2">Courses</h2>
-              <h3 className="text-3xl sm:text-5xl font-bold text-gray-900">Interview Packages</h3>
-            </div>
-            <Link href="/packages">
-              <Button variant="outline" className="hidden sm:flex gap-2">
-                View All Packages <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg) => (
-              <Card key={pkg.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-gray-200 flex flex-col h-full group">
-                <div className="p-6 flex-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <Badge variant="primary" className="text-xs capitalize">
-                      {pkg.difficulty_level}
-                    </Badge>
-                    <span className="text-xs text-gray-500">⏱️ {pkg.duration}</span>
-                  </div>
-                  <h4 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
-                    {pkg.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {pkg.description || 'Professional interview preparation with personalized feedback'}
-                  </p>
-                </div>
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between mt-auto">
-                  <div className="font-bold text-gray-900 text-lg">
-                    ৳{pkg.price?.toLocaleString()}
-                  </div>
-                  <Link href={`/packages/${pkg.id}`}>
-                    <Button size="sm">View Package</Button>
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </div>
-          <div className="mt-8 text-center sm:hidden">
-            <Link href="/packages">
-              <Button variant="outline" className="w-full gap-2">
-                View All Packages <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
