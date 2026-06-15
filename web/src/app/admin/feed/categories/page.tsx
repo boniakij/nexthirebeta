@@ -185,7 +185,7 @@ export default function AdminFeedCategories() {
                         {category.package_count}
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant={category.status === 'active' ? 'success' : 'secondary'} className="capitalize">
+                        <Badge variant={category.status === 'active' ? 'success' : 'gray'} className="capitalize">
                           {category.status}
                         </Badge>
                       </td>

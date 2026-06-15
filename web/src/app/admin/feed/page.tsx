@@ -144,7 +144,7 @@ function getActionBadgeColor(action: string) {
     case 'rejected':
       return 'danger';
     case 'hidden':
-      return 'secondary';
+      return 'gray';
     default:
       return 'primary';
   }

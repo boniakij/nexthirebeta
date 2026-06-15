@@ -91,7 +91,7 @@ export default function AdminFeaturedPackages() {
       case 'scheduled':
         return 'primary';
       case 'expired':
-        return 'secondary';
+        return 'gray';
       default:
         return 'primary';
     }

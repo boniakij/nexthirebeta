@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardBody, CardHeader, Button, Badge, Toggle } from '@/components/ui';
+import { Card, CardBody, CardHeader, Button, Badge } from '@/components/ui';
 import { Settings } from 'lucide-react';
 
 interface CountrySetting {
@@ -150,17 +150,17 @@ export default function AdminFeedCountries() {
                     <span className="font-semibold text-gray-900">{country.package_count}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={country.allow_trainers ? 'success' : 'secondary'}>
+                    <Badge variant={country.allow_trainers ? 'success' : 'gray'}>
                       {country.allow_trainers ? 'Allowed' : 'Blocked'}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={country.allow_booking ? 'success' : 'secondary'}>
+                    <Badge variant={country.allow_booking ? 'success' : 'gray'}>
                       {country.allow_booking ? 'Allowed' : 'Blocked'}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={country.status === 'active' ? 'success' : 'secondary'} className="capitalize">
+                    <Badge variant={country.status === 'active' ? 'success' : 'gray'} className="capitalize">
                       {country.status}
                     </Badge>
                   </td>

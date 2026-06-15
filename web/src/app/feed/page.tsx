@@ -651,7 +651,7 @@ export default function FeedPage() {
                           <Badge variant="primary" className="text-xs capitalize">
                             {pkg.category}
                           </Badge>
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="gray" className="text-xs">
                             {pkg.target_level}
                           </Badge>
                         </div>
