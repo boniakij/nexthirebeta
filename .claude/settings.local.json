@@ -118,7 +118,8 @@
       "Bash(bash /tmp/test-availability.sh)",
       "Bash(curl -s http://localhost:3001/trainer/profile)",
       "Bash(curl -s http://localhost:3001)",
-      "Bash(curl -s http://localhost:3000/trainer/availability)"
+      "Bash(curl -s http://localhost:3000/trainer/availability)",
+      "Bash(curl -s http://localhost:3000/trainers/1)"
     ]
   }
 }
