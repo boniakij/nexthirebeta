@@ -254,6 +254,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Become a Trainer CTA */}
+      <section className="py-16 bg-gradient-to-r from-primary-900 to-purple-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-10"></div>
+        <div className="absolute right-0 top-0 w-64 h-64 bg-primary-500 rounded-full mix-blend-screen filter blur-3xl opacity-30 translate-x-1/2 -translate-y-1/2"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <h3 className="text-3xl font-bold mb-3">Are you an industry expert?</h3>
+            <p className="text-lg text-primary-100 max-w-xl">Join our elite network of trainers. Set your own rates, help candidates succeed, and earn on your schedule.</p>
+          </div>
+          <Link href="/become-trainer" className="shrink-0">
+            <Button size="lg" className="bg-white !text-primary-700 hover:bg-gray-100 h-14 px-8 text-lg font-bold shadow-xl border-none">
+              Become a Trainer
+            </Button>
+          </Link>
+        </div>
+      </section>
+
       {/* Interview Packages Section */}
       <section className="py-24 bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

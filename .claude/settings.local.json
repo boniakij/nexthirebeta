@@ -130,7 +130,15 @@
       "Bash(curl -s -o /dev/null -w \"Admin Dashboard Status: %{http_code}\\\\n\" http://localhost:3000/admin)",
       "Bash(curl -s -o /dev/null -w \"Feed Management Status: %{http_code}\\\\n\" http://localhost:3000/admin/feed)",
       "Bash(curl -s -o /dev/null -w \"Feed Packages Status: %{http_code}\\\\n\" http://localhost:3000/admin/feed/packages)",
-      "Bash(curl -s -o /dev/null -w \"Landing Page Status: %{http_code}\\\\n\" http://localhost:3000/)"
+      "Bash(curl -s -o /dev/null -w \"Landing Page Status: %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/trainers/4)",
+      "Bash(kill 1136788)",
+      "Bash(curl -s http://localhost:3000/api/trainers/4)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill -9)",
+      "Bash(kill 2047638)",
+      "Bash(/tmp/test-trainer.sh)",
+      "Bash(curl -s http://localhost:3000/trainers)"
     ]
   }
 }

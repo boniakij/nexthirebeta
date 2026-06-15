@@ -44,6 +44,9 @@ export function Navbar() {
             <Link href="/trainers" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
               Trainers
             </Link>
+            <Link href="/become-trainer" className="text-primary-600 hover:text-primary-700 font-medium transition-colors border-l border-gray-200 pl-8 ml-4">
+              Become a Trainer
+            </Link>
           </div>
 
           {/* Auth Buttons */}

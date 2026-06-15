@@ -27,8 +27,13 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+import { useSearchParams } from 'next/navigation';
+
+export default function RegisterPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultRole = (searchParams.get('role') as 'student' | 'trainer' | 'company') || 'student';
+
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,7 +47,7 @@ export default function RegisterPage() {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      role: 'student',
+      role: defaultRole,
     }
   });
 
@@ -325,5 +330,15 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+import { Suspense } from 'react';
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
