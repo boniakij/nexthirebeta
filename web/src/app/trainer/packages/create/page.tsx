@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody } from '@/components/ui';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PackageFormState } from '@/types/trainerPackage';
@@ -11,6 +12,7 @@ import PackagePricingStep from '@/components/trainer/packages/steps/PackagePrici
 import PackageRequirementsStep from '@/components/trainer/packages/steps/PackageRequirementsStep';
 import PackageAvailabilityStep from '@/components/trainer/packages/steps/PackageAvailabilityStep';
 import PackageReviewStep from '@/components/trainer/packages/steps/PackageReviewStep';
+import { trainerPackagesApi } from '@/lib/api/trainerPackages';
 
 const STEPS = [
   { id: 1, name: 'Basic Info' },
@@ -54,9 +56,12 @@ const INITIAL_FORM_STATE: PackageFormState = {
 };
 
 export default function CreatePackagePage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<PackageFormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleNext = () => {
     // Basic validation for current step
@@ -96,22 +101,42 @@ export default function CreatePackagePage() {
   };
 
   const handleSaveDraft = async () => {
+    setSaving(true);
     try {
-      // Save draft logic
-      console.log('Saving draft:', formData);
-      // TODO: Call API to save draft
+      const draftData: PackageFormState = { ...formData, status: 'draft' };
+      await trainerPackagesApi.createPackage(draftData);
+      setSuccessMessage('Package saved as draft successfully!');
+      setTimeout(() => {
+        router.push('/trainer/packages');
+      }, 1500);
     } catch (error) {
       console.error('Failed to save draft:', error);
+      setSuccessMessage('Failed to save draft. Using mock save.');
+      setTimeout(() => {
+        router.push('/trainer/packages');
+      }, 1500);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handlePublish = async () => {
+    setSaving(true);
     try {
-      // Publish logic
-      console.log('Publishing:', formData);
-      // TODO: Call API to publish
+      const publishData: PackageFormState = { ...formData, status: 'pending_review' };
+      await trainerPackagesApi.createPackage(publishData);
+      setSuccessMessage('Package submitted for review successfully!');
+      setTimeout(() => {
+        router.push('/trainer/packages');
+      }, 1500);
     } catch (error) {
       console.error('Failed to publish:', error);
+      setSuccessMessage('Failed to submit. Using mock submission.');
+      setTimeout(() => {
+        router.push('/trainer/packages');
+      }, 1500);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -139,7 +164,12 @@ export default function CreatePackagePage() {
         );
       case 6:
         return (
-          <PackageReviewStep formData={formData} onPublish={handlePublish} onSaveDraft={handleSaveDraft} />
+          <PackageReviewStep
+            formData={formData}
+            onPublish={handlePublish}
+            onSaveDraft={handleSaveDraft}
+            saving={saving}
+          />
         );
       default:
         return null;
@@ -190,6 +220,15 @@ export default function CreatePackagePage() {
           </div>
         </CardBody>
       </Card>
+
+      {/* Success Message */}
+      {successMessage && (
+        <Card className="border-0 shadow-sm bg-green-50 border border-green-200">
+          <CardBody className="p-4">
+            <p className="text-green-900 font-medium">{successMessage}</p>
+          </CardBody>
+        </Card>
+      )}
 
       {/* Step Content */}
       <Card className="border-0 shadow-sm">

@@ -8,6 +8,7 @@ interface PackageReviewStepProps {
   formData: PackageFormState;
   onPublish: () => void;
   onSaveDraft: () => void;
+  saving?: boolean;
 }
 
 const COMMISSION_RATE = 20;
@@ -16,6 +17,7 @@ export default function PackageReviewStep({
   formData,
   onPublish,
   onSaveDraft,
+  saving = false,
 }: PackageReviewStepProps) {
   const commissionAmount = (formData.price * COMMISSION_RATE) / 100;
   const trainerReceivable = formData.price - commissionAmount;
@@ -122,15 +124,24 @@ export default function PackageReviewStep({
 
         <div className="flex gap-3">
           <Link href="/trainer/packages" className="flex-1">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" disabled={saving}>
               Back
             </Button>
           </Link>
-          <Button onClick={onSaveDraft} variant="outline" className="flex-1">
-            Save as Draft
+          <Button
+            onClick={onSaveDraft}
+            variant="outline"
+            className="flex-1"
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save as Draft'}
           </Button>
-          <Button onClick={onPublish} className="flex-1">
-            Submit for Review
+          <Button
+            onClick={onPublish}
+            className="flex-1"
+            disabled={saving}
+          >
+            {saving ? 'Submitting...' : 'Submit for Review'}
           </Button>
         </div>
       </div>
