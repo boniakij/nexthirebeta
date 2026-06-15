@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Card, CardBody, Button, Badge, Spinner } from '@/components/ui';
-import { Star, Clock, Users, ArrowRight, Search, Filter, X } from 'lucide-react';
+import { Star, Clock, Users, ArrowRight, Search, Filter, MapPin } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 
 interface FeedPackage {
@@ -23,15 +23,32 @@ interface FeedPackage {
   trainer: {
     id: number;
     name: string;
-    photo?: string;
+    avatar?: string;
+    avatar_text?: string;
     professional_title: string;
     rating: number;
     total_sessions: number;
+    country_code?: string;
+    country_name?: string;
+    country_flag?: string;
+    city?: string;
   };
 }
 
 const CATEGORIES = ['HR Interview', 'Technical Interview', 'CV Review', 'Career Counseling', 'LinkedIn Review', 'Company Interview Prep'];
-const TRAINER_TYPES = ['HR Trainer', 'Technical Trainer', 'Career Coach', 'CV Reviewer', 'Interview Specialist'];
+const LANGUAGES = ['Bangla', 'English', 'Bangla + English'];
+const DURATIONS = [30, 45, 60];
+const TARGET_LEVELS = ['Fresher', 'Junior', 'Mid-Level', 'Senior', 'Executive'];
+const COUNTRIES = [
+  { code: 'BD', name: 'Bangladesh' },
+  { code: 'IN', name: 'India' },
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'PK', name: 'Pakistan' },
+  { code: 'GLOBAL', name: 'Remote / Global' },
+];
 const PRICE_RANGES = [
   { label: 'Free', min: 0, max: 0 },
   { label: 'Under ৳500', min: 1, max: 500 },
@@ -39,10 +56,6 @@ const PRICE_RANGES = [
   { label: '৳1000-৳2000', min: 1000, max: 2000 },
   { label: '৳2000+', min: 2000, max: 999999 },
 ];
-const LANGUAGES = ['Bangla', 'English', 'Bangla + English'];
-const DURATIONS = [30, 45, 60];
-const TARGET_LEVELS = ['Fresher', 'Junior', 'Mid-Level', 'Senior', 'Executive'];
-const AVAILABILITY_OPTIONS = ['Available Today', 'Available Tomorrow', 'This Week', 'Weekend'];
 const SORT_OPTIONS = [
   { value: 'latest', label: 'Latest' },
   { value: 'popular', label: 'Popular' },
@@ -51,7 +64,15 @@ const SORT_OPTIONS = [
   { value: 'top_rated', label: 'Top Rated' },
 ];
 
-// Mock packages data
+// Flag generation function
+function getFlagEmoji(countryCode?: string): string {
+  if (!countryCode || countryCode === 'GLOBAL') return '🌐';
+  return countryCode
+    .toUpperCase()
+    .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
+// Mock packages with country data
 const MOCK_PACKAGES: FeedPackage[] = [
   {
     package_id: 1,
@@ -64,13 +85,18 @@ const MOCK_PACKAGES: FeedPackage[] = [
     price: 800,
     currency: 'BDT',
     published_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    next_available_slot: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    next_available_slot: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     trainer: {
       id: 15,
       name: 'Rahim Uddin',
+      avatar_text: 'R',
       professional_title: 'Senior HR Manager',
       rating: 4.8,
       total_sessions: 126,
+      country_code: 'BD',
+      country_name: 'Bangladesh',
+      country_flag: '🇧🇩',
+      city: 'Dhaka',
     },
   },
   {
@@ -88,9 +114,14 @@ const MOCK_PACKAGES: FeedPackage[] = [
     trainer: {
       id: 1,
       name: 'Arjun Kumar',
+      avatar_text: 'A',
       professional_title: 'Software Architect',
       rating: 4.9,
       total_sessions: 245,
+      country_code: 'IN',
+      country_name: 'India',
+      country_flag: '🇮🇳',
+      city: 'Bangalore',
     },
   },
   {
@@ -109,9 +140,14 @@ const MOCK_PACKAGES: FeedPackage[] = [
     trainer: {
       id: 20,
       name: 'Fatema Khan',
+      avatar_text: 'F',
       professional_title: 'HR Recruiter & CV Expert',
       rating: 4.7,
       total_sessions: 89,
+      country_code: 'BD',
+      country_name: 'Bangladesh',
+      country_flag: '🇧🇩',
+      city: 'Chittagong',
     },
   },
   {
@@ -129,9 +165,14 @@ const MOCK_PACKAGES: FeedPackage[] = [
     trainer: {
       id: 2,
       name: 'Priya Singh',
+      avatar_text: 'P',
       professional_title: 'Senior Engineer, Google',
       rating: 4.9,
       total_sessions: 156,
+      country_code: 'US',
+      country_name: 'United States',
+      country_flag: '🇺🇸',
+      city: 'San Francisco',
     },
   },
   {
@@ -149,9 +190,14 @@ const MOCK_PACKAGES: FeedPackage[] = [
     trainer: {
       id: 25,
       name: 'Shantanu Roy',
+      avatar_text: 'S',
       professional_title: 'Career Coach',
       rating: 4.6,
       total_sessions: 67,
+      country_code: 'BD',
+      country_name: 'Bangladesh',
+      country_flag: '🇧🇩',
+      city: 'Dhaka',
     },
   },
   {
@@ -169,9 +215,63 @@ const MOCK_PACKAGES: FeedPackage[] = [
     trainer: {
       id: 3,
       name: 'Aisha Khan',
+      avatar_text: 'A',
       professional_title: 'Amazon Manager (6+ years)',
       rating: 4.95,
       total_sessions: 203,
+      country_code: 'US',
+      country_name: 'United States',
+      country_flag: '🇺🇸',
+      city: 'Seattle',
+    },
+  },
+  {
+    package_id: 7,
+    title: 'Web Development Interview Crash Course',
+    short_description: 'Frontend, backend, databases - complete web dev interview prep',
+    category: 'Technical Interview',
+    target_level: 'Junior',
+    duration_minutes: 60,
+    language: 'English',
+    price: 1100,
+    currency: 'BDT',
+    published_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    next_available_slot: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+    trainer: {
+      id: 18,
+      name: 'James Wilson',
+      avatar_text: 'J',
+      professional_title: 'Full-Stack Developer',
+      rating: 4.7,
+      total_sessions: 134,
+      country_code: 'GB',
+      country_name: 'United Kingdom',
+      country_flag: '🇬🇧',
+      city: 'London',
+    },
+  },
+  {
+    package_id: 8,
+    title: 'Startup Founder Interview Prep',
+    short_description: 'Learn how startup founders think and ace founder interviews',
+    category: 'Career Counseling',
+    target_level: 'Senior',
+    duration_minutes: 45,
+    language: 'English',
+    price: 1300,
+    currency: 'BDT',
+    published_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    next_available_slot: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    trainer: {
+      id: 28,
+      name: 'Michael Chen',
+      avatar_text: 'M',
+      professional_title: 'Startup Founder & Investor',
+      rating: 4.8,
+      total_sessions: 78,
+      country_code: 'GLOBAL',
+      country_name: 'Remote / Global',
+      country_flag: '🌐',
     },
   },
 ];
@@ -180,25 +280,19 @@ export default function FeedPage() {
   // Filters State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedTrainerType, setSelectedTrainerType] = useState<string>('');
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('');
-  const [selectedRating, setSelectedRating] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<string>('');
   const [selectedTargetLevel, setSelectedTargetLevel] = useState<string>('');
-  const [selectedAvailability, setSelectedAvailability] = useState<string>('');
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('latest');
   const [showFilters, setShowFilters] = useState(false);
 
   // Data State
   const [packages, setPackages] = useState<FeedPackage[]>(MOCK_PACKAGES);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const { isAuthenticated } = useAuthStore();
-  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Filter packages
   const filteredPackages = packages.filter(pkg => {
@@ -217,6 +311,7 @@ export default function FeedPage() {
     if (selectedLanguage && pkg.language !== selectedLanguage) return false;
     if (selectedDuration && pkg.duration_minutes !== parseInt(selectedDuration)) return false;
     if (selectedTargetLevel && pkg.target_level !== selectedTargetLevel) return false;
+    if (selectedCountry && pkg.trainer.country_code !== selectedCountry) return false;
 
     if (selectedPriceRange) {
       const [min, max] = selectedPriceRange.split('-').map(Number);
@@ -259,8 +354,8 @@ export default function FeedPage() {
     const now = new Date();
     const daysAhead = Math.floor((slot.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
 
-    if (daysAhead === 0) return 'Available today';
-    if (daysAhead === 1) return 'Available tomorrow';
+    if (daysAhead === 0) return 'Today';
+    if (daysAhead === 1) return 'Tomorrow';
     if (daysAhead < 7) return `In ${daysAhead} days`;
     return slot.toLocaleDateString();
   };
@@ -268,26 +363,22 @@ export default function FeedPage() {
   const resetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
-    setSelectedTrainerType('');
-    setSelectedPriceRange('');
-    setSelectedRating('');
+    setSelectedCountry('');
     setSelectedLanguage('');
     setSelectedDuration('');
     setSelectedTargetLevel('');
-    setSelectedAvailability('');
+    setSelectedPriceRange('');
     setSortBy('latest');
   };
 
   const activeFiltersCount = [
     searchQuery,
     selectedCategory,
-    selectedTrainerType,
-    selectedPriceRange,
-    selectedRating,
+    selectedCountry,
     selectedLanguage,
     selectedDuration,
     selectedTargetLevel,
-    selectedAvailability,
+    selectedPriceRange,
   ].filter(Boolean).length;
 
   return (
@@ -299,7 +390,7 @@ export default function FeedPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">Interview Package Feed</h1>
           <p className="text-xl text-primary-100 max-w-2xl mb-8">
-            Browse latest mock interview, CV review, and career coaching packages from expert trainers
+            Browse latest mock interview, CV review, and career coaching packages from expert trainers worldwide
           </p>
 
           {/* Search Bar */}
@@ -344,6 +435,20 @@ export default function FeedPage() {
                 {SORT_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* Country */}
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white hover:border-primary-400 transition"
+              >
+                <option value="">All Countries</option>
+                {COUNTRIES.map(country => (
+                  <option key={country.code} value={country.code}>
+                    {getFlagEmoji(country.code)} {country.name}
                   </option>
                 ))}
               </select>
@@ -415,7 +520,7 @@ export default function FeedPage() {
                   onClick={resetFilters}
                   className="px-3 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition"
                 >
-                  Clear All
+                  Clear
                 </button>
               )}
             </div>
@@ -437,19 +542,21 @@ export default function FeedPage() {
               </select>
 
               {[
-                { label: 'Category', value: selectedCategory, onChange: setSelectedCategory, options: CATEGORIES },
-                { label: 'Level', value: selectedTargetLevel, onChange: setSelectedTargetLevel, options: TARGET_LEVELS },
-                { label: 'Language', value: selectedLanguage, onChange: setSelectedLanguage, options: LANGUAGES },
-              ].map(filter => (
+                { label: 'Country', value: selectedCountry, onChange: setSelectedCountry, options: COUNTRIES.map(c => ({ label: `${c.name}`, value: c.code })) },
+                { label: 'Category', value: selectedCategory, onChange: setSelectedCategory, options: CATEGORIES.map(c => ({ label: c, value: c })) },
+                { label: 'Level', value: selectedTargetLevel, onChange: setSelectedTargetLevel, options: TARGET_LEVELS.map(l => ({ label: l, value: l })) },
+              ].map((filter, idx) => (
                 <select
-                  key={filter.label}
+                  key={idx}
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
                   className="px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white"
                 >
                   <option value="">All {filter.label}s</option>
-                  {filter.options.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
+                  {filter.options.map((opt: any) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </select>
               ))}
@@ -494,135 +601,129 @@ export default function FeedPage() {
                   key={pkg.package_id}
                   className="overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-primary-300"
                 >
-                  <CardBody>
-                    <div className="flex flex-col md:flex-row gap-6">
-                      {/* Trainer Info */}
-                      <div className="md:w-64 flex-shrink-0">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-14 h-14 bg-gradient-to-br from-primary-400 to-purple-400 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xl font-bold">
-                            {pkg.trainer.name.charAt(0)}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-bold text-gray-900">{pkg.trainer.name}</h3>
-                            <p className="text-xs text-gray-600">{pkg.trainer.professional_title}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                              <div className="flex text-yellow-400">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-3 h-3 ${i < Math.round(pkg.trainer.rating) ? 'fill-current' : 'text-gray-300'}`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs font-semibold text-gray-900">
-                                {pkg.trainer.rating.toFixed(1)}
-                              </span>
+                  <CardBody className="p-6">
+                    {/* Trainer Header Section */}
+                    <div className="flex items-start justify-between mb-5 pb-5 border-b border-gray-200">
+                      <div className="flex gap-4 flex-1">
+                        {/* Avatar */}
+                        <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-lg font-bold shadow-sm">
+                          {pkg.trainer.avatar_text}
+                        </div>
+
+                        {/* Trainer Info */}
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900">{pkg.trainer.name}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{pkg.trainer.professional_title}</p>
+
+                          {/* Rating & Sessions */}
+                          <div className="flex items-center gap-3 text-sm mb-3">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              <span className="font-semibold text-gray-900">{pkg.trainer.rating.toFixed(1)}</span>
                             </div>
+                            <span className="text-gray-600">•</span>
+                            <span className="text-gray-600">{pkg.trainer.total_sessions} sessions completed</span>
                           </div>
-                        </div>
 
-                        <div className="text-xs text-gray-600 mb-4 pb-4 border-b border-gray-200">
-                          <Users className="w-4 h-4 inline mr-1" />
-                          {pkg.trainer.total_sessions} sessions completed
-                        </div>
+                          {/* Country */}
+                          {pkg.trainer.country_name && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                              <span className="text-lg">{pkg.trainer.country_flag || getFlagEmoji(pkg.trainer.country_code)}</span>
+                              <span className="font-medium">{pkg.trainer.country_name}</span>
+                              {pkg.trainer.city && <span className="text-gray-500">({pkg.trainer.city})</span>}
+                            </div>
+                          )}
 
-                        <Link href={`/trainers/${pkg.trainer.id}`}>
-                          <Button variant="outline" size="sm" className="w-full">
-                            View Profile
-                          </Button>
-                        </Link>
+                          <Link href={`/trainers/${pkg.trainer.id}`}>
+                            <Button variant="outline" size="sm" className="text-xs">
+                              View Profile
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Package Info Section */}
+                    <div className="space-y-4">
+                      {/* Tags and Time */}
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex gap-2 items-center flex-wrap">
+                          <Badge variant="primary" className="text-xs capitalize">
+                            {pkg.category}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {pkg.target_level}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {getTimeAgo(pkg.published_at)}
+                        </span>
                       </div>
 
-                      {/* Package Details */}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <Badge variant="primary" className="text-xs">
-                                {pkg.category}
-                              </Badge>
-                              <Badge variant="secondary" className="text-xs">
-                                {pkg.target_level}
-                              </Badge>
-                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                {getTimeAgo(pkg.published_at)}
-                              </span>
-                            </div>
-                            <h2 className="text-xl font-bold text-gray-900 mb-2">
-                              {pkg.title}
-                            </h2>
-                          </div>
+                      {/* Title */}
+                      <h2 className="text-xl font-bold text-gray-900 leading-tight">
+                        {pkg.title}
+                      </h2>
+
+                      {/* Description */}
+                      <p className="text-gray-700 text-sm line-clamp-2">
+                        {pkg.short_description}
+                      </p>
+
+                      {/* Package Details Grid */}
+                      <div className="grid grid-cols-3 gap-4 py-4 bg-gray-50 rounded-lg px-4 -mx-6 mx-0">
+                        <div>
+                          <p className="text-xs text-gray-600 font-medium">Duration</p>
+                          <p className="font-bold text-gray-900">{pkg.duration_minutes}m</p>
                         </div>
-
-                        <p className="text-gray-700 mb-4 line-clamp-2 text-sm">
-                          {pkg.short_description}
-                        </p>
-
-                        {/* Stats */}
-                        <div className="grid grid-cols-3 gap-3 mb-6 py-4 border-y border-gray-200">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-primary-600" />
-                            <div>
-                              <p className="text-xs text-gray-600">Duration</p>
-                              <p className="font-bold text-sm text-gray-900">{pkg.duration_minutes}m</p>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600 mb-1">Language</p>
-                            <p className="font-bold text-sm text-gray-900">{pkg.language}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600 mb-1">Available</p>
-                            <p className="font-bold text-sm text-green-600">{getAvailabilityText(pkg.next_available_slot)}</p>
-                          </div>
+                        <div>
+                          <p className="text-xs text-gray-600 font-medium">Language</p>
+                          <p className="font-bold text-gray-900 text-sm">{pkg.language}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-600 font-medium">Available</p>
+                          <p className="font-bold text-green-600 text-sm">{getAvailabilityText(pkg.next_available_slot)}</p>
+                        </div>
+                      </div>
 
-                        {/* Price & Action */}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-600 mb-1">Price</p>
-                            <div className="flex items-baseline gap-2">
-                              {pkg.discount_price ? (
-                                <>
-                                  <p className="text-3xl font-bold text-primary-600">
-                                    ৳{pkg.discount_price.toLocaleString()}
-                                  </p>
-                                  <p className="text-sm line-through text-gray-400">
-                                    ৳{pkg.price.toLocaleString()}
-                                  </p>
-                                </>
-                              ) : (
-                                <p className="text-3xl font-bold text-primary-600">
+                      {/* Price & Actions */}
+                      <div className="flex items-center justify-between pt-4">
+                        <div>
+                          <p className="text-xs text-gray-600 font-medium mb-1">Price</p>
+                          <div className="flex items-baseline gap-2">
+                            {pkg.discount_price ? (
+                              <>
+                                <p className="text-2xl font-bold text-primary-600">
+                                  ৳{pkg.discount_price.toLocaleString()}
+                                </p>
+                                <p className="text-xs line-through text-gray-400">
                                   ৳{pkg.price.toLocaleString()}
                                 </p>
-                              )}
-                            </div>
+                              </>
+                            ) : (
+                              <p className="text-2xl font-bold text-primary-600">
+                                ৳{pkg.price.toLocaleString()}
+                              </p>
+                            )}
                           </div>
-                          <div className="flex gap-2">
-                            <Link href={`/packages/${pkg.package_id}`}>
-                              <Button variant="outline" size="sm">
-                                Details
-                              </Button>
-                            </Link>
-                            <Link href={isAuthenticated ? `/book/${pkg.trainer.id}?package=${pkg.package_id}` : '/auth/login'}>
-                              <Button size="sm" className="gap-2">
-                                Book <ArrowRight className="w-4 h-4" />
-                              </Button>
-                            </Link>
-                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Link href={`/packages/${pkg.package_id}`}>
+                            <Button variant="outline" size="sm">
+                              Details
+                            </Button>
+                          </Link>
+                          <Link href={isAuthenticated ? `/book/${pkg.trainer.id}?package=${pkg.package_id}` : '/auth/login'}>
+                            <Button size="sm" className="gap-2">
+                              Book <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
                   </CardBody>
                 </Card>
               ))}
-
-              {/* Infinite Scroll Observer */}
-              {hasMore && (
-                <div ref={observerTarget} className="flex justify-center py-8">
-                  {isFetchingMore ? <Spinner size="sm" /> : <p className="text-gray-500">Scroll for more packages</p>}
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -634,7 +735,7 @@ export default function FeedPage() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to ace your interview?</h2>
             <p className="text-primary-100 mb-8 max-w-2xl mx-auto text-lg">
-              Pick any package from top trainers and start your journey today
+              Pick any package from expert trainers worldwide and start your journey today
             </p>
             {!isAuthenticated && (
               <Link href="/auth/register">
