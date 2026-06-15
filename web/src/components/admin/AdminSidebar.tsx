@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, UserCheck, Building2, Briefcase,
   MessageSquare, Zap, Star, BarChart3, FileText, Settings,
   Lock, HelpCircle, Menu, X, ChevronDown,
-  TrendingUp, DollarSign, Bell, CreditCard
+  TrendingUp, DollarSign, Bell, CreditCard, Package
 } from 'lucide-react';
 
 interface MenuItem {
@@ -60,6 +60,18 @@ const menuItems: MenuItem[] = [
       { title: 'Campaigns', href: '/admin/companies/campaigns' },
       { title: 'Candidates', href: '/admin/companies/candidates' },
       { title: 'Messages', href: '/admin/companies/messages' },
+    ],
+  },
+  {
+    title: 'Feed Management',
+    icon: <Package className="w-5 h-5" />,
+    submenu: [
+      { title: 'Overview', href: '/admin/feed' },
+      { title: 'Packages', href: '/admin/feed/packages' },
+      { title: 'Featured', href: '/admin/feed/featured' },
+      { title: 'Categories', href: '/admin/feed/categories' },
+      { title: 'Countries', href: '/admin/feed/countries' },
+      { title: 'Ranking Rules', href: '/admin/feed/ranking' },
     ],
   },
   {
