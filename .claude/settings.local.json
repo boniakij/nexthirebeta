@@ -138,7 +138,9 @@
       "Bash(xargs kill -9)",
       "Bash(kill 2047638)",
       "Bash(/tmp/test-trainer.sh)",
-      "Bash(curl -s http://localhost:3000/trainers)"
+      "Bash(curl -s http://localhost:3000/trainers)",
+      "Bash(curl -s http://localhost:3000/trainer/packages/create)",
+      "Bash(curl -s http://localhost:3000/trainer/packages/1)"
     ]
   }
 }
