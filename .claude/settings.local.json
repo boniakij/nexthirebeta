@@ -141,7 +141,9 @@
       "Bash(curl -s http://localhost:3000/trainers)",
       "Bash(curl -s http://localhost:3000/trainer/packages/create)",
       "Bash(curl -s http://localhost:3000/trainer/packages/1)",
-      "Bash(curl -s http://localhost:3000/trainer/packages/1/edit)"
+      "Bash(curl -s http://localhost:3000/trainer/packages/1/edit)",
+      "Bash(curl -s http://localhost:3000/trainer/packages/3)",
+      "Bash(curl -s http://localhost:3000/trainer/packages/3/edit)"
     ]
   }
 }
